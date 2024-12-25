@@ -11,7 +11,7 @@ export function DashboardSidebar() {
 
   return (
     <div className="h-full w-full bg-accent">
-      <nav className="flex md:flex-col justify-around md:justify-start items-center h-16 md:h-full md:pt-8 md:gap-8">
+      <nav className="flex md:flex-col justify-around md:justify-start items-center h-16 md:h-screen md:pt-8 md:gap-8">
         {links.map(({ to, icon: Icon, label }) => (
           <NavLink
             key={to}

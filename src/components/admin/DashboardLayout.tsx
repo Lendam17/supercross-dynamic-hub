@@ -6,7 +6,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     <SidebarProvider defaultOpen={true}>
       <div className="flex min-h-screen w-full bg-white">
         {/* Sidebar for desktop */}
-        <div className="hidden md:block fixed left-0 top-0 bottom-0 w-20 h-full">
+        <div className="hidden md:block fixed left-0 top-0 bottom-0 w-20 min-h-screen">
           <DashboardSidebar />
         </div>
 
