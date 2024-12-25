@@ -6,13 +6,13 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     <SidebarProvider defaultOpen={true}>
       <div className="flex min-h-screen w-full bg-white">
         {/* Sidebar for desktop */}
-        <div className="hidden md:block fixed left-0 top-0 h-full w-64">
+        <div className="hidden md:block fixed left-0 top-0 h-full w-20">
           <DashboardSidebar />
         </div>
 
         {/* Main content */}
-        <main className="flex-1 w-full md:ml-64 min-h-screen">
-          <div className="container mx-auto px-4 py-8 max-w-7xl text-center md:text-left">
+        <main className="flex-1 w-full md:ml-20 min-h-screen">
+          <div className="container mx-auto px-4 py-8 max-w-7xl">
             {children}
           </div>
         </main>
