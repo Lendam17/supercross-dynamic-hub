@@ -27,7 +27,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Log the incoming request for debugging
     console.log("Received contact request:", contactRequest);
 
-    // During testing, we can only send to verified email
+    // During testing, we can only send from and to verified email
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -35,7 +35,7 @@ const handler = async (req: Request): Promise<Response> => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "SX Tour - Douai <onboarding@resend.dev>",
+        from: "SX Tour Douai <fabien17.dev@gmail.com>", // Using verified email
         to: ["fabien17.dev@gmail.com"], // Using verified email during testing
         reply_to: contactRequest.email, // Add reply-to header with the sender's email
         subject: `Nouveau message de contact - ${contactRequest.subject}`,
