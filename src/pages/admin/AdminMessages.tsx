@@ -21,10 +21,16 @@ export default function AdminMessages() {
   const { data: messages = [], isLoading } = useQuery({
     queryKey: ["contact_messages", searchQuery],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const query = supabase
         .from("contact_messages")
         .select("*")
-        .ilike("message", `%${searchQuery}%`);
+        .order("created_at", { ascending: false });
+
+      if (searchQuery) {
+        query.or(`name.ilike.%${searchQuery}%,email.ilike.%${searchQuery}%,subject.ilike.%${searchQuery}%,message.ilike.%${searchQuery}%`);
+      }
+
+      const { data, error } = await query;
       if (error) throw error;
       return data as Message[];
     },
@@ -48,27 +54,22 @@ export default function AdminMessages() {
     onError: (error: Error) => {
       toast({
         title: "Erreur",
-        description: error.message,
+        description: "Une erreur est survenue lors de la suppression du message.",
         variant: "destructive",
       });
     },
   });
 
-  const handleDelete = (id: string) => {
-    deleteMutation.mutate(id);
-  };
-
   const handleReply = async (content: string) => {
+    if (!selectedMessage) return;
+    
     setIsReplying(true);
     try {
-      // Here you would implement the email sending logic
-      // For now, we'll just show a success message
-      toast({
-        title: "Réponse envoyée",
-        description: "Votre réponse a été envoyée avec succès.",
-      });
+      // Here you would implement the email sending logic if needed
+      // For now we'll just close the dialog
       setSelectedMessage(null);
     } catch (error) {
+      console.error("Error sending reply:", error);
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de l'envoi de la réponse.",
@@ -76,6 +77,15 @@ export default function AdminMessages() {
       });
     } finally {
       setIsReplying(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      await Promise.all(selectedMessages.map(id => deleteMutation.mutateAsync(id)));
+      setSelectedMessages([]);
+    } catch (error) {
+      console.error("Error deleting messages:", error);
     }
   };
 
@@ -91,34 +101,41 @@ export default function AdminMessages() {
 
   return (
     <DashboardLayout>
-      <div className="max-w-5xl mx-auto">
-        <div className="mb-6 space-y-4">
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-800 text-center w-full sm:text-left sm:w-auto">
-              Messages de contact
-            </h1>
-            <div className="flex items-center gap-2 w-full sm:w-auto">
-              <div className="relative flex-1 sm:flex-none">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
-                <Input
-                  type="text"
-                  placeholder="Rechercher..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 w-full"
-                />
-              </div>
+      <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
+            Messages de contact
+          </h1>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            {selectedMessages.length > 0 && (
+              <Button
+                variant="destructive"
+                onClick={handleDelete}
+                className="whitespace-nowrap"
+              >
+                Supprimer ({selectedMessages.length})
+              </Button>
+            )}
+            <div className="relative flex-1 sm:flex-none">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+              <Input
+                type="text"
+                placeholder="Rechercher..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 w-full"
+              />
             </div>
           </div>
-
-          <MessageList
-            messages={messages}
-            selectedMessages={selectedMessages}
-            onSelectMessage={handleSelectMessage}
-            onSelectAll={handleSelectAll}
-            onMessageClick={setSelectedMessage}
-          />
         </div>
+
+        <MessageList
+          messages={messages}
+          selectedMessages={selectedMessages}
+          onSelectMessage={handleSelectMessage}
+          onSelectAll={handleSelectAll}
+          onMessageClick={setSelectedMessage}
+        />
 
         <MessageDialog
           message={selectedMessage}

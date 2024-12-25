@@ -11,6 +11,7 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Message } from "./types";
 import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 interface MessageDialogProps {
   message: Message | null;
@@ -28,8 +29,27 @@ export function MessageDialog({
   isReplying,
 }: MessageDialogProps) {
   const [replyContent, setReplyContent] = useState("");
+  const { toast } = useToast();
 
   if (!message) return null;
+
+  const handleReply = async () => {
+    try {
+      await onReply(replyContent);
+      setReplyContent("");
+      toast({
+        title: "Réponse envoyée",
+        description: "Votre réponse a été envoyée avec succès.",
+      });
+    } catch (error) {
+      console.error("Error sending reply:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur s'est produite lors de l'envoi de la réponse.",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -79,10 +99,7 @@ export function MessageDialog({
               Annuler
             </Button>
             <Button
-              onClick={async () => {
-                await onReply(replyContent);
-                setReplyContent("");
-              }}
+              onClick={handleReply}
               disabled={isReplying || !replyContent.trim()}
             >
               {isReplying ? "Envoi en cours..." : "Envoyer"}

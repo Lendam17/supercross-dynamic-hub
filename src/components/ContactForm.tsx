@@ -28,16 +28,16 @@ const ContactForm = () => {
       // Validate form data
       const validatedData = contactSchema.parse(formData);
 
-      // Send message using edge function
-      const { error } = await supabase.functions.invoke("send-contact-email", {
-        body: validatedData,
-      });
+      // Insert message into database
+      const { error } = await supabase
+        .from("contact_messages")
+        .insert([validatedData]);
 
       if (error) throw error;
 
       toast({
         title: "Message envoyé !",
-        description: "Nous vous répondrons dans les plus brefs délais.",
+        description: "Votre message a été envoyé avec succès.",
       });
 
       // Reset form
