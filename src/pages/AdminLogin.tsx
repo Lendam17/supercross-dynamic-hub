@@ -17,40 +17,53 @@ const AdminLogin = () => {
     setLoading(true);
 
     try {
-      const { data: adminCheck } = await supabase
+      console.log("Checking admin status for:", email);
+      const { data: adminCheck, error: adminError } = await supabase
         .from("admin_users")
         .select("email")
         .eq("email", email)
         .single();
 
+      if (adminError) {
+        console.error("Error checking admin status:", adminError);
+        throw new Error("Erreur lors de la vérification des droits administrateur");
+      }
+
       if (!adminCheck) {
+        console.error("Not an admin user");
         toast({
           title: "Erreur",
           description: "Vous n'êtes pas autorisé à accéder à cette page.",
           variant: "destructive",
         });
+        setLoading(false);
         return;
       }
 
-      const { error } = await supabase.auth.signInWithPassword({
+      console.log("Admin check passed, attempting login");
+      const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) throw error;
+      if (signInError) {
+        console.error("Login error:", signInError);
+        throw signInError;
+      }
 
+      console.log("Login successful");
       navigate("/admin");
       toast({
         title: "Succès",
         description: "Connexion réussie",
       });
     } catch (error) {
+      console.error("Full error object:", error);
       toast({
         title: "Erreur",
-        description: "Une erreur est survenue lors de la connexion.",
+        description: error instanceof Error ? error.message : "Une erreur est survenue lors de la connexion.",
         variant: "destructive",
       });
-      console.error("Error logging in:", error);
     } finally {
       setLoading(false);
     }
