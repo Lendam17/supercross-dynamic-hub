@@ -20,7 +20,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           {isSidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </Button>
 
-        {/* Backdrop */}
+        {/* Backdrop for mobile */}
         {isSidebarOpen && (
           <div
             className="fixed inset-0 bg-black/50 z-40 md:hidden"
@@ -32,13 +32,13 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         <div
           className={`${
             isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-          } md:translate-x-0 transition-transform duration-200 ease-in-out`}
+          } fixed md:relative md:translate-x-0 transition-transform duration-200 ease-in-out z-50`}
         >
           <DashboardSidebar />
         </div>
 
         {/* Main content */}
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto pl-0 md:pl-64">
           <div className="container mx-auto p-6 md:p-8">{children}</div>
         </main>
       </div>

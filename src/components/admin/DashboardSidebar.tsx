@@ -37,7 +37,7 @@ export function DashboardSidebar() {
   ];
 
   return (
-    <Sidebar className="bg-gray-900 fixed inset-y-0 left-0 z-50 w-64 transform transition-transform duration-200 ease-in-out md:relative md:translate-x-0">
+    <Sidebar className="fixed inset-y-0 left-0 z-50 w-64 bg-gray-900">
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel className="text-white/70">Dashboard</SidebarGroupLabel>
