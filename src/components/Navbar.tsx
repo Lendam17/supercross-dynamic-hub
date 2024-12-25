@@ -1,4 +1,4 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "./ui/button";
@@ -7,6 +7,7 @@ import { NavMenu } from "./navigation/NavMenu";
 
 const Navbar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -20,6 +21,7 @@ const Navbar = () => {
       if (error) throw error;
       
       setIsAdmin(false);
+      navigate("/admin/login");
       toast({
         title: "Déconnexion réussie",
         description: "Vous avez été déconnecté avec succès.",
@@ -72,30 +74,25 @@ const Navbar = () => {
   return (
     <nav className="fixed w-full bg-white shadow-sm z-50">
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex flex-col md:flex-row items-center justify-between py-4 md:h-16">
           {/* Logo */}
-          <div className="text-gray-900 font-['Oswald'] font-bold text-xl tracking-wider">
+          <div className="text-gray-900 font-['Oswald'] font-bold text-xl tracking-wider mb-4 md:mb-0">
             SX TOUR
             <span className="text-primary ml-2">DOUAI</span>
           </div>
 
-          {/* Desktop Menu */}
-          <div className="hidden md:flex items-center">
-            <NavMenu isActive={isActive} isAdmin={isAdmin} />
+          {/* Navigation */}
+          <div className="flex flex-col md:flex-row items-center w-full md:w-auto">
+            <NavMenu isActive={isActive} isAdmin={isAdmin} isMobile={true} />
             {isAdmin && (
               <Button
                 variant="default"
                 onClick={handleLogout}
-                className="ml-8 bg-primary hover:bg-primary/90 text-white font-['Oswald'] tracking-wide"
+                className="mt-4 md:mt-0 md:ml-8 bg-primary hover:bg-primary/90 text-white font-['Oswald'] tracking-wide"
               >
                 Déconnexion
               </Button>
             )}
-          </div>
-
-          {/* Mobile Menu */}
-          <div className="md:hidden flex items-center">
-            <NavMenu isActive={isActive} isAdmin={isAdmin} isMobile={true} />
           </div>
         </div>
       </div>
