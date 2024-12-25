@@ -10,7 +10,7 @@ export function DashboardSidebar() {
   ];
 
   return (
-    <div className="h-full md:h-screen md:w-20 w-full bg-accent">
+    <div className="h-full w-full bg-accent">
       <nav className="flex md:flex-col justify-around md:justify-start items-center h-16 md:h-full md:pt-8 md:gap-8">
         {links.map(({ to, icon: Icon, label }) => (
           <NavLink
