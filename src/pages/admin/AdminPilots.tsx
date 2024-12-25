@@ -3,7 +3,7 @@ import PilotList from "@/components/admin/PilotList";
 import PilotForm from "@/components/admin/PilotForm";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
-import { Plus } from "lucide-react";
+import { Plus, Users } from "lucide-react";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -142,7 +142,10 @@ const AdminPilots = () => {
   return (
     <DashboardLayout>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Gestion des Pilotes</h1>
+        <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
+          <Users className="h-8 w-8 mb-2 sm:hidden text-primary" />
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Gestion des Pilotes</h1>
+        </div>
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
             <Button
