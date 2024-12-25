@@ -1,15 +1,12 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
 };
-
-const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
-const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
 interface ContactRequest {
   name: string;
@@ -25,20 +22,12 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
     const contactRequest: ContactRequest = await req.json();
 
-    // Store message in Supabase
-    const { error: dbError } = await supabase
-      .from("contact_messages")
-      .insert([contactRequest]);
+    // Log the incoming request for debugging
+    console.log("Received contact request:", contactRequest);
 
-    if (dbError) {
-      console.error("Error storing message:", dbError);
-      throw new Error("Failed to store message");
-    }
-
-    // Send email using Resend
+    // During testing, we can only send to verified email
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -47,7 +36,8 @@ const handler = async (req: Request): Promise<Response> => {
       },
       body: JSON.stringify({
         from: "SX Tour - Douai <onboarding@resend.dev>",
-        to: ["contact.sxtour.douai@gmail.com"],
+        to: ["fabien17.dev@gmail.com"], // Using verified email during testing
+        reply_to: contactRequest.email, // Add reply-to header with the sender's email
         subject: `Nouveau message de contact - ${contactRequest.subject}`,
         html: `
           <h2>Nouveau message de contact</h2>
@@ -62,8 +52,12 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (!res.ok) {
       const error = await res.text();
+      console.error("Error response from Resend:", error);
       throw new Error(`Failed to send email: ${error}`);
     }
+
+    const data = await res.json();
+    console.log("Email sent successfully:", data);
 
     return new Response(JSON.stringify({ success: true }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -72,10 +66,10 @@ const handler = async (req: Request): Promise<Response> => {
   } catch (error: any) {
     console.error("Error in send-contact-email function:", error);
     return new Response(
-      JSON.stringify({ error: error.message || "Internal server error" }),
+      JSON.stringify({ error: `Failed to send email: ${error}` }),
       {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       }
     );
   }
