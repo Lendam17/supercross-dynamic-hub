@@ -9,7 +9,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Users, MessageSquare } from "lucide-react";
+import { MessageSquare, Users } from "lucide-react";
 
 export function DashboardSidebar() {
   const location = useLocation();
@@ -19,17 +19,17 @@ export function DashboardSidebar() {
   };
 
   return (
-    <Sidebar>
+    <Sidebar className="bg-accent">
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Dashboard</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-white/70">Dashboard</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton
                   asChild
                   isActive={isActive("/admin/pilots")}
-                  tooltip="Pilotes"
+                  className="text-white/80 hover:text-white hover:bg-accent/50"
                 >
                   <Link to="/admin/pilots">
                     <Users className="h-4 w-4" />
@@ -41,7 +41,7 @@ export function DashboardSidebar() {
                 <SidebarMenuButton
                   asChild
                   isActive={isActive("/admin/messages")}
-                  tooltip="Messages"
+                  className="text-white/80 hover:text-white hover:bg-accent/50"
                 >
                   <Link to="/admin/messages">
                     <MessageSquare className="h-4 w-4" />

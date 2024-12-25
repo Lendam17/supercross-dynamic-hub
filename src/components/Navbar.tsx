@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "./ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -37,7 +37,7 @@ const Navbar = () => {
   };
 
   // Check if user is admin
-  useState(() => {
+  useEffect(() => {
     const checkAdmin = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
@@ -109,9 +109,9 @@ const Navbar = () => {
             </div>
             {isAdmin && (
               <Button
-                variant="ghost"
+                variant="default"
                 onClick={handleLogout}
-                className="ml-8 text-gray-900 hover:text-primary font-['Oswald'] tracking-wide"
+                className="ml-8 bg-primary hover:bg-primary/90 text-white font-['Oswald'] tracking-wide"
               >
                 Déconnexion
               </Button>
