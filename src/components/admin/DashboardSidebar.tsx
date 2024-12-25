@@ -24,20 +24,18 @@ export function DashboardSidebar() {
 
   const handleLogout = async () => {
     try {
-      // First check if we have a session
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        // If no session, just navigate to login
-        navigate("/admin/login");
-        return;
-      }
-
-      // Proceed with logout if we have a session
       const { error } = await supabase.auth.signOut();
+      
       if (error) {
         console.error("Logout error:", error);
-        throw error;
+        // If there's an error during logout, we'll still redirect to login
+        // but with a different message
+        navigate("/admin/login");
+        toast({
+          title: "Note",
+          description: "Session terminée. Veuillez vous reconnecter.",
+        });
+        return;
       }
 
       navigate("/admin/login");
@@ -51,7 +49,7 @@ export function DashboardSidebar() {
       navigate("/admin/login");
       toast({
         title: "Note",
-        description: "Vous avez été redirigé vers la page de connexion.",
+        description: "Session terminée. Veuillez vous reconnecter.",
       });
     }
   };
