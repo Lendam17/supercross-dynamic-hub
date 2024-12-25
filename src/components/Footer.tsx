@@ -1,3 +1,5 @@
+import { Facebook, Instagram, Twitter } from "lucide-react";
+
 const Footer = () => {
   return (
     <footer className="bg-black/95 py-12 backdrop-blur-sm">
@@ -28,24 +30,27 @@ const Footer = () => {
                 className="text-gray-400 hover:text-primary transition-colors duration-300"
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label="Facebook"
               >
-                Facebook
+                <Facebook className="w-6 h-6" />
               </a>
               <a 
                 href="#" 
                 className="text-gray-400 hover:text-primary transition-colors duration-300"
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label="Instagram"
               >
-                Instagram
+                <Instagram className="w-6 h-6" />
               </a>
               <a 
                 href="#" 
                 className="text-gray-400 hover:text-primary transition-colors duration-300"
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label="Twitter"
               >
-                Twitter
+                <Twitter className="w-6 h-6" />
               </a>
             </div>
           </div>
