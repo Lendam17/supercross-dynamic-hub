@@ -28,12 +28,14 @@ export function MessageList({
 }: MessageListProps) {
   return (
     <Table>
+      {/* En-tête du tableau */}
       <TableHeader>
         <TableRow>
           <TableHead className="w-[50px]">
             <Checkbox
               checked={messages?.length === selectedMessages.length && selectedMessages.length > 0}
               onCheckedChange={onSelectAll}
+              aria-label="Sélectionner tous les messages"
             />
           </TableHead>
           <TableHead>Date</TableHead>
@@ -43,6 +45,8 @@ export function MessageList({
           <TableHead>Message</TableHead>
         </TableRow>
       </TableHeader>
+      
+      {/* Corps du tableau */}
       <TableBody>
         {messages?.map((message) => (
           <TableRow 
@@ -50,12 +54,16 @@ export function MessageList({
             className="cursor-pointer hover:bg-gray-50"
             onClick={() => onMessageClick(message)}
           >
+            {/* Case à cocher pour la sélection */}
             <TableCell onClick={(e) => e.stopPropagation()}>
               <Checkbox
                 checked={selectedMessages.includes(message.id)}
                 onCheckedChange={(checked) => onSelectMessage(message.id, !!checked)}
+                aria-label={`Sélectionner le message de ${message.name}`}
               />
             </TableCell>
+            
+            {/* Informations du message */}
             <TableCell className="whitespace-nowrap">
               {format(new Date(message.created_at), "dd/MM/yyyy HH:mm", {
                 locale: fr,

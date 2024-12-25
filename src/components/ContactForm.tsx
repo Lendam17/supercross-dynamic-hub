@@ -3,6 +3,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
 
+// Schéma de validation pour le formulaire de contact
 const contactSchema = z.object({
   name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
   email: z.string().email("Veuillez entrer une adresse email valide"),
@@ -13,6 +14,8 @@ const contactSchema = z.object({
 const ContactForm = () => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // État initial du formulaire
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -25,13 +28,13 @@ const ContactForm = () => {
     setIsSubmitting(true);
 
     try {
-      // Validate form data
+      // Validation des données du formulaire
       const validatedData = contactSchema.parse(formData);
 
-      // Insert message into database
+      // Insertion du message dans la base de données
       const { error } = await supabase
         .from("contact_messages")
-        .insert([validatedData]);
+        .insert(validatedData); // Correction de l'erreur ici
 
       if (error) throw error;
 
@@ -40,12 +43,12 @@ const ContactForm = () => {
         description: "Votre message a été envoyé avec succès.",
       });
 
-      // Reset form
+      // Réinitialisation du formulaire
       setFormData({ name: "", email: "", subject: "", message: "" });
     } catch (error) {
       console.error("Error sending message:", error);
       if (error instanceof z.ZodError) {
-        // Show first validation error
+        // Affichage de la première erreur de validation
         toast({
           title: "Erreur de validation",
           description: error.errors[0].message,
