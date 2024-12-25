@@ -34,8 +34,16 @@
     @apply border-border;
   }
 
+  html {
+    @apply h-full;
+  }
+
   body {
-    @apply bg-white text-foreground font-['Roboto'] overflow-x-hidden min-h-screen;
+    @apply bg-white text-foreground font-['Roboto'] overflow-x-hidden h-full;
+  }
+
+  #root {
+    @apply h-full;
   }
 
   h1, h2, h3, h4, h5, h6 {
