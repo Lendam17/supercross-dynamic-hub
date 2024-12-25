@@ -52,23 +52,23 @@ export const NavMenu = ({ isActive, isAdmin, isMobile = false, onItemClick }: Na
               </NavLink>
             ))}
           </div>
+
+          {/* Menu admin mobile (icônes uniquement) */}
+          {isAdmin && (
+            <div className="flex gap-8 justify-center p-3">
+              {adminMenuItems.map(({ path, icon: Icon }) => (
+                <NavLink key={path} to={path} isActive={isActive(path)} onClick={handleItemClick}>
+                  <Icon className="h-6 w-6 text-gray-900" />
+                </NavLink>
+              ))}
+            </div>
+          )}
         </div>
       ) : (
         <div className="hidden md:flex gap-8 items-center">
           {menuItems.map(({ path, label }) => (
             <NavLink key={path} to={path} isActive={isActive(path)} onClick={handleItemClick}>
               <span>{label}</span>
-            </NavLink>
-          ))}
-        </div>
-      )}
-
-      {/* Menu admin mobile (icônes uniquement) */}
-      {isAdmin && isMobile && (
-        <div className="flex gap-8 p-3 bg-accent rounded-lg md:hidden">
-          {adminMenuItems.map(({ path, icon: Icon }) => (
-            <NavLink key={path} to={path} isActive={isActive(path)} onClick={handleItemClick}>
-              <Icon className="h-6 w-6 text-white" />
             </NavLink>
           ))}
         </div>
