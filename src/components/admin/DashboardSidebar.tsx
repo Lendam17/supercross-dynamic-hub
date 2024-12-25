@@ -77,7 +77,7 @@ export function DashboardSidebar() {
                     tooltip={item.label}
                   >
                     <Link to={item.path}>
-                      <item.icon className="h-6 w-6" />
+                      <item.icon className="h-8 w-8" />
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -91,7 +91,7 @@ export function DashboardSidebar() {
           onClick={handleLogout}
           className="w-full flex items-center justify-center text-white/80 hover:text-white hover:bg-gray-800 p-4 rounded-lg transition-colors"
         >
-          <LogOut className="h-6 w-6" />
+          <LogOut className="h-8 w-8" />
         </button>
       </div>
     </Sidebar>
