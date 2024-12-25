@@ -46,6 +46,13 @@ const PilotForm = ({
         last_name: initialData.last_name,
         image_url: initialData.image_url,
       });
+    } else {
+      // Réinitialiser le formulaire si on n'est pas en mode édition
+      setFormData({
+        first_name: "",
+        last_name: "",
+        image_url: "",
+      });
     }
   }, [initialData, isEditing]);
 
@@ -110,14 +117,6 @@ const PilotForm = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit(formData);
-    // Réinitialiser le formulaire uniquement si ce n'est pas en mode édition
-    if (!isEditing) {
-      setFormData({
-        first_name: "",
-        last_name: "",
-        image_url: "",
-      });
-    }
   };
 
   return (
