@@ -14,7 +14,7 @@ export const NavLink = ({ to, isActive, children, onClick }: NavLinkProps) => {
       onClick={onClick}
       className={`${
         isActive
-          ? "text-primary"
+          ? "text-primary font-semibold"
           : "text-gray-900 hover:text-primary transition-colors duration-300"
       } font-['Oswald'] tracking-wide flex items-center gap-2 justify-center`}
     >

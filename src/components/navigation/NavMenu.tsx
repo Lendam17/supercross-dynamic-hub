@@ -1,4 +1,4 @@
-import { Home, Ticket, MessageSquare, LayoutDashboard, Users, Menu } from "lucide-react";
+import { Home, Ticket, MessageSquare, LayoutDashboard, Users } from "lucide-react";
 import { NavLink } from "./NavLink";
 import { useState } from "react";
 
@@ -19,13 +19,6 @@ export const NavMenu = ({ isActive, isAdmin, isMobile = false, onItemClick }: Na
     ...(isAdmin ? [{ path: "/admin", label: "Dashboard", icon: LayoutDashboard }] : []),
   ];
 
-  // Icônes du menu admin pour mobile
-  const adminMenuItems = [
-    { path: "/admin/messages", icon: MessageSquare },
-    { path: "/admin/pilots", icon: Users },
-    { path: "/admin", icon: LayoutDashboard },
-  ];
-
   const handleItemClick = () => {
     setIsMenuOpen(false);
     onItemClick?.();
@@ -33,13 +26,12 @@ export const NavMenu = ({ isActive, isAdmin, isMobile = false, onItemClick }: Na
 
   return (
     <div className="flex flex-col items-center w-full md:w-auto">
-      {/* Menu principal */}
       {isMobile ? (
         <div className="w-full md:hidden">
-          {/* Bouton hamburger */}
+          {/* Menu mobile */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="flex items-center justify-center p-2 mb-4"
+            className="flex items-center justify-center p-2 mb-4 hover:bg-gray-100 rounded-md"
           >
             <Menu className="h-6 w-6 text-gray-900" />
           </button>
@@ -52,17 +44,6 @@ export const NavMenu = ({ isActive, isAdmin, isMobile = false, onItemClick }: Na
               </NavLink>
             ))}
           </div>
-
-          {/* Menu admin mobile (icônes uniquement) */}
-          {isAdmin && (
-            <div className="flex gap-8 justify-center p-3">
-              {adminMenuItems.map(({ path, icon: Icon }) => (
-                <NavLink key={path} to={path} isActive={isActive(path)} onClick={handleItemClick}>
-                  <Icon className="h-6 w-6 text-gray-900" />
-                </NavLink>
-              ))}
-            </div>
-          )}
         </div>
       ) : (
         <div className="hidden md:flex gap-8 items-center">
