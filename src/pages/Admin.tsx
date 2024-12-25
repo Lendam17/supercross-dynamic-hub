@@ -129,13 +129,17 @@ const Admin = () => {
   };
 
   if (isLoading) {
-    return <div>Chargement...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
   }
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Gestion des Pilotes</h1>
+    <div className="container mx-auto py-8 px-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+        <h1 className="text-2xl md:text-3xl font-bold">Gestion des Pilotes</h1>
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
             <Button
@@ -143,6 +147,7 @@ const Admin = () => {
                 setEditingPilot(null);
                 setIsOpen(true);
               }}
+              className="w-full sm:w-auto"
             >
               <Plus className="mr-2 h-4 w-4" />
               Ajouter un pilote

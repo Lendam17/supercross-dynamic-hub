@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,25 @@ const AdminLogin = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        const { data: adminUser } = await supabase
+          .from("admin_users")
+          .select("email")
+          .eq("email", session.user.email)
+          .single();
+
+        if (adminUser) {
+          navigate("/admin");
+        }
+      }
+    };
+
+    checkSession();
+  }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,12 +89,12 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="container mx-auto max-w-md py-12">
-      <div className="bg-card rounded-lg shadow-lg p-6">
-        <h1 className="text-2xl font-bold mb-6 text-center">Administration</h1>
+    <div className="container mx-auto px-4 py-8 md:py-12 max-w-md">
+      <div className="bg-card rounded-lg shadow-lg p-6 md:p-8">
+        <h1 className="text-2xl md:text-3xl font-bold mb-6 text-center">Administration</h1>
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <label htmlFor="email" className="block text-sm mb-1">
+            <label htmlFor="email" className="block text-sm font-medium mb-1">
               Email
             </label>
             <Input
@@ -83,11 +102,12 @@ const AdminLogin = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              className="w-full"
               required
             />
           </div>
           <div>
-            <label htmlFor="password" className="block text-sm mb-1">
+            <label htmlFor="password" className="block text-sm font-medium mb-1">
               Mot de passe
             </label>
             <Input
@@ -95,6 +115,7 @@ const AdminLogin = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              className="w-full"
               required
             />
           </div>
