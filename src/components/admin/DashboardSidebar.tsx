@@ -24,19 +24,34 @@ export function DashboardSidebar() {
 
   const handleLogout = async () => {
     try {
+      // First check if we have a session
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        // If no session, just navigate to login
+        navigate("/admin/login");
+        return;
+      }
+
+      // Proceed with logout if we have a session
       const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      if (error) {
+        console.error("Logout error:", error);
+        throw error;
+      }
+
       navigate("/admin/login");
       toast({
         title: "Déconnexion réussie",
         description: "Vous avez été déconnecté avec succès.",
       });
     } catch (error) {
-      console.error("Error logging out:", error);
+      console.error("Error during logout:", error);
+      // Even if there's an error, we should redirect to login
+      navigate("/admin/login");
       toast({
-        title: "Erreur",
-        description: "Une erreur est survenue lors de la déconnexion.",
-        variant: "destructive",
+        title: "Note",
+        description: "Vous avez été redirigé vers la page de connexion.",
       });
     }
   };
