@@ -2,24 +2,11 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Pencil, Trash2, Plus } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Plus } from "lucide-react";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import PilotForm from "@/components/admin/PilotForm";
+import PilotList from "@/components/admin/PilotList";
 
 interface Pilot {
   id: string;
@@ -28,16 +15,11 @@ interface Pilot {
   image_url: string | null;
 }
 
-const AdminPilots = () => {
+const Admin = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
   const [editingPilot, setEditingPilot] = useState<Pilot | null>(null);
-  const [formData, setFormData] = useState({
-    first_name: "",
-    last_name: "",
-    image_url: "",
-  });
 
   const { data: pilots, isLoading } = useQuery({
     queryKey: ["pilots"],
@@ -65,7 +47,6 @@ const AdminPilots = () => {
         description: "Le pilote a été ajouté avec succès.",
       });
       setIsOpen(false);
-      resetForm();
     },
     onError: (error) => {
       toast({
@@ -97,7 +78,7 @@ const AdminPilots = () => {
         description: "Le pilote a été mis à jour avec succès.",
       });
       setIsOpen(false);
-      resetForm();
+      setEditingPilot(null);
     },
     onError: (error) => {
       toast({
@@ -131,8 +112,7 @@ const AdminPilots = () => {
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = (formData: Omit<Pilot, "id">) => {
     if (editingPilot) {
       updatePilotMutation.mutate({
         ...formData,
@@ -145,21 +125,7 @@ const AdminPilots = () => {
 
   const handleEdit = (pilot: Pilot) => {
     setEditingPilot(pilot);
-    setFormData({
-      first_name: pilot.first_name,
-      last_name: pilot.last_name,
-      image_url: pilot.image_url || "",
-    });
     setIsOpen(true);
-  };
-
-  const resetForm = () => {
-    setFormData({
-      first_name: "",
-      last_name: "",
-      image_url: "",
-    });
-    setEditingPilot(null);
   };
 
   if (isLoading) {
@@ -174,7 +140,7 @@ const AdminPilots = () => {
           <DialogTrigger asChild>
             <Button
               onClick={() => {
-                resetForm();
+                setEditingPilot(null);
                 setIsOpen(true);
               }}
             >
@@ -182,113 +148,22 @@ const AdminPilots = () => {
               Ajouter un pilote
             </Button>
           </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>
-                {editingPilot ? "Modifier le pilote" : "Ajouter un pilote"}
-              </DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label htmlFor="first_name" className="block text-sm mb-1">
-                  Prénom
-                </label>
-                <Input
-                  id="first_name"
-                  value={formData.first_name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, first_name: e.target.value })
-                  }
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="last_name" className="block text-sm mb-1">
-                  Nom
-                </label>
-                <Input
-                  id="last_name"
-                  value={formData.last_name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, last_name: e.target.value })
-                  }
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="image_url" className="block text-sm mb-1">
-                  URL de l'image
-                </label>
-                <Input
-                  id="image_url"
-                  value={formData.image_url}
-                  onChange={(e) =>
-                    setFormData({ ...formData, image_url: e.target.value })
-                  }
-                />
-              </div>
-              <div className="flex justify-end gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsOpen(false)}
-                >
-                  Annuler
-                </Button>
-                <Button type="submit">
-                  {editingPilot ? "Modifier" : "Ajouter"}
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
+          <PilotForm
+            onSubmit={handleSubmit}
+            initialData={editingPilot || undefined}
+            setIsOpen={setIsOpen}
+            isEditing={!!editingPilot}
+          />
         </Dialog>
       </div>
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Prénom</TableHead>
-            <TableHead>Nom</TableHead>
-            <TableHead>Image</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {pilots?.map((pilot) => (
-            <TableRow key={pilot.id}>
-              <TableCell>{pilot.first_name}</TableCell>
-              <TableCell>{pilot.last_name}</TableCell>
-              <TableCell>
-                {pilot.image_url && (
-                  <img
-                    src={pilot.image_url}
-                    alt={`${pilot.first_name} ${pilot.last_name}`}
-                    className="w-12 h-12 object-cover rounded"
-                  />
-                )}
-              </TableCell>
-              <TableCell className="text-right">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleEdit(pilot)}
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => deletePilotMutation.mutate(pilot.id)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <PilotList
+        pilots={pilots || []}
+        onEdit={handleEdit}
+        onDelete={(id) => deletePilotMutation.mutate(id)}
+      />
     </div>
   );
 };
 
-export default AdminPilots;
+export default Admin;
