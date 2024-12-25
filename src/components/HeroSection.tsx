@@ -10,7 +10,7 @@ const HeroSection = () => {
           className="absolute w-full h-full object-cover"
         >
           <source
-            src="SX Tour 2024.mp4"
+            src="/SX Tour 2024.mp4"
             type="video/mp4"
           />
           Votre navigateur ne supporte pas la lecture de vidéos.
