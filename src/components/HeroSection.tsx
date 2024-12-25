@@ -1,0 +1,40 @@
+const HeroSection = () => {
+  return (
+    <div className="relative min-h-screen flex items-center justify-center">
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{
+          backgroundImage:
+            "url('https://images.unsplash.com/photo-1637417494521-538e053d6ff1')",
+        }}
+      >
+        <div className="absolute inset-0 bg-black/70" />
+      </div>
+      <div className="relative container mx-auto px-4 text-center">
+        <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 animate-fade-in">
+          SX TOUR
+          <span className="text-primary"> DOUAI</span>
+        </h1>
+        <p className="text-xl md:text-2xl text-gray-300 mb-8 animate-fade-in">
+          Le plus grand événement de Supercross du Nord de la France
+        </p>
+        <div className="flex flex-col md:flex-row justify-center gap-4 animate-fade-in">
+          <a
+            href="/tickets"
+            className="bg-primary hover:bg-primary/90 text-white px-8 py-3 rounded-md font-semibold transition-colors"
+          >
+            Réserver maintenant
+          </a>
+          <a
+            href="/contact"
+            className="bg-secondary hover:bg-secondary/90 text-white px-8 py-3 rounded-md font-semibold transition-colors"
+          >
+            Nous contacter
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default HeroSection;
