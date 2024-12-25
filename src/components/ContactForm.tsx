@@ -3,7 +3,8 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
 
-// Schéma de validation pour le formulaire de contact
+// Schema de validation pour le formulaire de contact
+// Définit les règles de validation pour chaque champ
 const contactSchema = z.object({
   name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
   email: z.string().email("Veuillez entrer une adresse email valide"),
@@ -11,12 +12,15 @@ const contactSchema = z.object({
   message: z.string().min(10, "Le message doit contenir au moins 10 caractères"),
 });
 
+// Type pour les données du formulaire basé sur le schema de validation
+type ContactFormData = z.infer<typeof contactSchema>;
+
 const ContactForm = () => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // État initial du formulaire
-  const [formData, setFormData] = useState({
+  // État initial du formulaire avec tous les champs requis
+  const [formData, setFormData] = useState<ContactFormData>({
     name: "",
     email: "",
     subject: "",
@@ -28,22 +32,29 @@ const ContactForm = () => {
     setIsSubmitting(true);
 
     try {
-      // Validation des données du formulaire
+      // Validation des données du formulaire avec Zod
       const validatedData = contactSchema.parse(formData);
 
       // Insertion du message dans la base de données
+      // Les champs correspondent exactement à ce que Supabase attend
       const { error } = await supabase
         .from("contact_messages")
-        .insert(validatedData); // Correction de l'erreur ici
+        .insert({
+          name: validatedData.name,
+          email: validatedData.email,
+          subject: validatedData.subject,
+          message: validatedData.message,
+        });
 
       if (error) throw error;
 
+      // Notification de succès
       toast({
         title: "Message envoyé !",
         description: "Votre message a été envoyé avec succès.",
       });
 
-      // Réinitialisation du formulaire
+      // Réinitialisation du formulaire après envoi réussi
       setFormData({ name: "", email: "", subject: "", message: "" });
     } catch (error) {
       console.error("Error sending message:", error);
@@ -55,6 +66,7 @@ const ContactForm = () => {
           variant: "destructive",
         });
       } else {
+        // Affichage d'une erreur générique en cas d'échec de l'insertion
         toast({
           title: "Erreur",
           description:
@@ -81,6 +93,7 @@ const ContactForm = () => {
           className="w-full p-3 rounded-lg bg-white/50 border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-colors"
           required
           disabled={isSubmitting}
+          aria-label="Votre nom"
         />
       </div>
       <div>
@@ -95,6 +108,7 @@ const ContactForm = () => {
           className="w-full p-3 rounded-lg bg-white/50 border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-colors"
           required
           disabled={isSubmitting}
+          aria-label="Votre adresse email"
         />
       </div>
       <div>
@@ -109,6 +123,7 @@ const ContactForm = () => {
           className="w-full p-3 rounded-lg bg-white/50 border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-colors"
           required
           disabled={isSubmitting}
+          aria-label="Sujet de votre message"
         />
       </div>
       <div>
@@ -123,12 +138,14 @@ const ContactForm = () => {
           className="w-full p-3 rounded-lg bg-white/50 border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-colors"
           required
           disabled={isSubmitting}
+          aria-label="Votre message"
         />
       </div>
       <button
         type="submit"
         disabled={isSubmitting}
         className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+        aria-label={isSubmitting ? "Envoi en cours..." : "Envoyer le message"}
       >
         {isSubmitting ? "Envoi en cours..." : "Envoyer"}
       </button>
