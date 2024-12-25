@@ -31,10 +31,10 @@ export const MobileMenuOverlay = ({
 
       {/* Menu content */}
       <div
-        className={`fixed inset-x-0 top-1/2 -translate-y-1/2 z-50 bg-white transform transition-transform duration-300 ease-in-out
-          ${isOpen ? "translate-y-[-50%]" : "-translate-y-full"}`}
+        className={`fixed inset-x-0 top-0 z-50 bg-white transform transition-transform duration-300 ease-in-out h-auto
+          ${isOpen ? "translate-y-0" : "-translate-y-full"}`}
       >
-        <div className="flex flex-col items-center justify-center py-8 gap-6">
+        <div className="flex flex-col items-center justify-center py-12 gap-6">
           {menuItems.map(({ path, label, icon }) => (
             <MobileMenuItem
               key={path}
