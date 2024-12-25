@@ -13,6 +13,7 @@ interface ContactRequest {
   email: string;
   subject: string;
   message: string;
+  to?: string[];
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -27,27 +28,44 @@ const handler = async (req: Request): Promise<Response> => {
     // Log the incoming request for debugging
     console.log("Received contact request:", contactRequest);
 
-    // Using Resend's default sending address with reply-to set to our Gmail
+    // Determine if this is a new contact message or a reply
+    const isReply = Array.isArray(contactRequest.to);
+    const emailConfig = isReply
+      ? {
+          from: "SX Tour Douai <onboarding@resend.dev>",
+          to: contactRequest.to,
+          reply_to: "fabien17.dev@gmail.com",
+          subject: contactRequest.subject,
+          html: `
+            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+              <p>Bonjour ${contactRequest.name},</p>
+              <p>${contactRequest.message}</p>
+              <p>Cordialement,<br>L'équipe SX Tour Douai</p>
+            </div>
+          `,
+        }
+      : {
+          from: "SX Tour Douai <onboarding@resend.dev>",
+          to: ["fabien17.dev@gmail.com"],
+          reply_to: contactRequest.email,
+          subject: `Nouveau message de contact - ${contactRequest.subject}`,
+          html: `
+            <h2>Nouveau message de contact</h2>
+            <p><strong>Nom:</strong> ${contactRequest.name}</p>
+            <p><strong>Email:</strong> ${contactRequest.email}</p>
+            <p><strong>Sujet:</strong> ${contactRequest.subject}</p>
+            <p><strong>Message:</strong></p>
+            <p>${contactRequest.message}</p>
+          `,
+        };
+
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
-      body: JSON.stringify({
-        from: "SX Tour Douai <onboarding@resend.dev>",
-        to: ["fabien17.dev@gmail.com"], // Using verified email during testing
-        reply_to: contactRequest.email, // Add reply-to header with the sender's email
-        subject: `Nouveau message de contact - ${contactRequest.subject}`,
-        html: `
-          <h2>Nouveau message de contact</h2>
-          <p><strong>Nom:</strong> ${contactRequest.name}</p>
-          <p><strong>Email:</strong> ${contactRequest.email}</p>
-          <p><strong>Sujet:</strong> ${contactRequest.subject}</p>
-          <p><strong>Message:</strong></p>
-          <p>${contactRequest.message}</p>
-        `,
-      }),
+      body: JSON.stringify(emailConfig),
     });
 
     if (!res.ok) {

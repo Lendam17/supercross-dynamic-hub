@@ -1,10 +1,15 @@
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "./ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 const Navbar = () => {
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { toast } = useToast();
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -13,6 +18,39 @@ const Navbar = () => {
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast({
+        title: "Déconnexion réussie",
+        description: "Vous avez été déconnecté avec succès.",
+      });
+    } catch (error) {
+      console.error("Error logging out:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la déconnexion.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Check if user is admin
+  useState(() => {
+    const checkAdmin = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        const { data: adminUser } = await supabase
+          .from("admin_users")
+          .select("email")
+          .eq("email", session.user.email)
+          .single();
+        setIsAdmin(!!adminUser);
+      }
+    };
+    checkAdmin();
+  }, []);
 
   return (
     <nav className="fixed w-full bg-white shadow-sm z-50">
@@ -24,37 +62,60 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex space-x-8">
-            <Link
-              to="/"
-              className={`${
-                isActive("/")
-                  ? "text-primary"
-                  : "text-gray-900 hover:text-primary transition-colors duration-300"
-              } font-['Oswald'] tracking-wide`}
-            >
-              Accueil
-            </Link>
-            <Link
-              to="/tickets"
-              className={`${
-                isActive("/tickets")
-                  ? "text-primary"
-                  : "text-gray-900 hover:text-primary transition-colors duration-300"
-              } font-['Oswald'] tracking-wide`}
-            >
-              Tickets
-            </Link>
-            <Link
-              to="/contact"
-              className={`${
-                isActive("/contact")
-                  ? "text-primary"
-                  : "text-gray-900 hover:text-primary transition-colors duration-300"
-              } font-['Oswald'] tracking-wide`}
-            >
-              Contact
-            </Link>
+          <div className="hidden md:flex items-center">
+            <div className="flex space-x-8">
+              <Link
+                to="/"
+                className={`${
+                  isActive("/")
+                    ? "text-primary"
+                    : "text-gray-900 hover:text-primary transition-colors duration-300"
+                } font-['Oswald'] tracking-wide`}
+              >
+                Accueil
+              </Link>
+              <Link
+                to="/tickets"
+                className={`${
+                  isActive("/tickets")
+                    ? "text-primary"
+                    : "text-gray-900 hover:text-primary transition-colors duration-300"
+                } font-['Oswald'] tracking-wide`}
+              >
+                Tickets
+              </Link>
+              <Link
+                to="/contact"
+                className={`${
+                  isActive("/contact")
+                    ? "text-primary"
+                    : "text-gray-900 hover:text-primary transition-colors duration-300"
+                } font-['Oswald'] tracking-wide`}
+              >
+                Contact
+              </Link>
+              {isAdmin && (
+                <Link
+                  to="/admin"
+                  className={`${
+                    isActive("/admin")
+                      ? "text-primary"
+                      : "text-gray-900 hover:text-primary transition-colors duration-300"
+                  } font-['Oswald'] tracking-wide`}
+                >
+                  Dashboard
+                </Link>
+              )}
+            </div>
+            {isAdmin && (
+              <Button
+                variant="ghost"
+                onClick={handleLogout}
+                className="ml-8 text-gray-900 hover:text-primary font-['Oswald'] tracking-wide"
+              >
+                Déconnexion
+              </Button>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -104,6 +165,30 @@ const Navbar = () => {
               >
                 Contact
               </Link>
+              {isAdmin && (
+                <>
+                  <Link
+                    to="/admin"
+                    className={`block px-3 py-2 rounded-md ${
+                      isActive("/admin")
+                        ? "text-primary"
+                        : "text-gray-900 hover:text-primary transition-colors duration-300"
+                    } font-['Oswald'] tracking-wide`}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Dashboard
+                  </Link>
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setIsMenuOpen(false);
+                    }}
+                    className="w-full text-left px-3 py-2 rounded-md text-gray-900 hover:text-primary transition-colors duration-300 font-['Oswald'] tracking-wide"
+                  >
+                    Déconnexion
+                  </button>
+                </>
+              )}
             </div>
           </div>
         )}

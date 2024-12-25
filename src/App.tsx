@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "./components/Navbar";
@@ -10,8 +10,9 @@ import Footer from "./components/Footer";
 import Index from "./pages/Index";
 import Tickets from "./pages/Tickets";
 import Contact from "./pages/Contact";
-import Admin from "./pages/Admin";
 import AdminLogin from "./pages/AdminLogin";
+import AdminPilots from "./pages/admin/AdminPilots";
+import AdminMessages from "./pages/admin/AdminMessages";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -65,7 +66,23 @@ const App = () => {
                   path="/admin"
                   element={
                     <ProtectedRoute>
-                      <Admin />
+                      <Navigate to="/admin/pilots" replace />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/pilots"
+                  element={
+                    <ProtectedRoute>
+                      <AdminPilots />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/messages"
+                  element={
+                    <ProtectedRoute>
+                      <AdminMessages />
                     </ProtectedRoute>
                   }
                 />
