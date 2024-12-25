@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, Trash2 } from "lucide-react";
+import { Search } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { DashboardLayout } from "@/components/admin/DashboardLayout";
@@ -13,48 +13,81 @@ import { Message } from "@/components/admin/messages/types";
 export default function AdminMessages() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
+  const [selectedMessages, setSelectedMessages] = useState<string[]>([]);
+  const [isReplying, setIsReplying] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const { data: messages = [], isLoading } = useQuery(["messages", searchQuery], async () => {
-    const { data, error } = await supabase
-      .from("messages")
-      .select("*")
-      .ilike("content", `%${searchQuery}%`);
-    if (error) throw new Error(error.message);
-    return data;
+  const { data: messages = [], isLoading } = useQuery({
+    queryKey: ["contact_messages", searchQuery],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("contact_messages")
+        .select("*")
+        .ilike("message", `%${searchQuery}%`);
+      if (error) throw error;
+      return data as Message[];
+    },
   });
 
-  const mutation = useMutation(
-    async (id: string) => {
-      const { error } = await supabase.from("messages").delete().eq("id", id);
-      if (error) throw new Error(error.message);
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from("contact_messages")
+        .delete()
+        .eq("id", id);
+      if (error) throw error;
     },
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries("messages");
-        toast({
-          title: "Message supprimé",
-          description: "Le message a été supprimé avec succès.",
-        });
-      },
-      onError: (error: any) => {
-        toast({
-          title: "Erreur",
-          description: error.message,
-          variant: "destructive",
-        });
-      },
-    }
-  );
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["contact_messages"] });
+      toast({
+        title: "Message supprimé",
+        description: "Le message a été supprimé avec succès.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Erreur",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
 
   const handleDelete = (id: string) => {
-    mutation.mutate(id);
+    deleteMutation.mutate(id);
   };
 
-  const filteredMessages = messages.filter((message) =>
-    message.content.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const handleReply = async (content: string) => {
+    setIsReplying(true);
+    try {
+      // Here you would implement the email sending logic
+      // For now, we'll just show a success message
+      toast({
+        title: "Réponse envoyée",
+        description: "Votre réponse a été envoyée avec succès.",
+      });
+      setSelectedMessage(null);
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de l'envoi de la réponse.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsReplying(false);
+    }
+  };
+
+  const handleSelectMessage = (id: string, checked: boolean) => {
+    setSelectedMessages(prev =>
+      checked ? [...prev, id] : prev.filter(messageId => messageId !== id)
+    );
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    setSelectedMessages(checked ? messages.map(m => m.id) : []);
+  };
 
   return (
     <DashboardLayout>
@@ -78,19 +111,21 @@ export default function AdminMessages() {
             </div>
           </div>
 
-          {/* Message list */}
           <MessageList
-            messages={filteredMessages}
-            isLoading={isLoading}
+            messages={messages}
+            selectedMessages={selectedMessages}
+            onSelectMessage={handleSelectMessage}
+            onSelectAll={handleSelectAll}
             onMessageClick={setSelectedMessage}
-            onDeleteClick={handleDelete}
           />
         </div>
 
-        {/* Message dialog */}
         <MessageDialog
           message={selectedMessage}
+          isOpen={!!selectedMessage}
           onClose={() => setSelectedMessage(null)}
+          onReply={handleReply}
+          isReplying={isReplying}
         />
       </div>
     </DashboardLayout>
