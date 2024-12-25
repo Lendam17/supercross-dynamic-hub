@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Sidebar,
   SidebarContent,
@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/sidebar";
 import { Home, LogOut, MessageSquare, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
 export function DashboardSidebar() {
@@ -24,17 +23,9 @@ export function DashboardSidebar() {
 
   const handleLogout = async () => {
     try {
-      // First clear any local session state
-      await supabase.auth.signOut({ scope: 'local' });
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
       
-      // Then attempt to clear global session
-      const { error } = await supabase.auth.signOut({ scope: 'global' });
-      
-      if (error) {
-        console.error("Logout error:", error);
-      }
-
-      // Always navigate to login and show success message
       navigate("/admin/login");
       toast({
         title: "Déconnexion réussie",

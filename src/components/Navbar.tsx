@@ -21,7 +21,10 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      await supabase.auth.signOut();
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
+      setIsAdmin(false);
       toast({
         title: "Déconnexion réussie",
         description: "Vous avez été déconnecté avec succès.",
@@ -47,9 +50,30 @@ const Navbar = () => {
           .eq("email", session.user.email)
           .single();
         setIsAdmin(!!adminUser);
+      } else {
+        setIsAdmin(false);
       }
     };
+
     checkAdmin();
+
+    // Subscribe to auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session) {
+        const { data: adminUser } = await supabase
+          .from("admin_users")
+          .select("email")
+          .eq("email", session.user.email)
+          .single();
+        setIsAdmin(!!adminUser);
+      } else {
+        setIsAdmin(false);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   return (
