@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -6,8 +5,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { usePilotForm } from "@/hooks/usePilotForm";
+import ImageUpload from "./ImageUpload";
 
 interface PilotFormProps {
   onSubmit: (formData: {
@@ -30,94 +29,17 @@ const PilotForm = ({
   setIsOpen,
   isEditing,
 }: PilotFormProps) => {
-  const { toast } = useToast();
-  const [isUploading, setIsUploading] = useState(false);
-  const [formData, setFormData] = useState({
-    first_name: "",
-    last_name: "",
-    image_url: "",
+  const {
+    formData,
+    setFormData,
+    isUploading,
+    handleImageUpload,
+    handleSubmit,
+  } = usePilotForm({
+    initialData,
+    isEditing,
+    onSubmit,
   });
-
-  // Effet pour pré-remplir le formulaire avec les données initiales en mode édition
-  useEffect(() => {
-    if (initialData && isEditing) {
-      setFormData({
-        first_name: initialData.first_name,
-        last_name: initialData.last_name,
-        image_url: initialData.image_url,
-      });
-    } else {
-      // Réinitialiser le formulaire si on n'est pas en mode édition
-      setFormData({
-        first_name: "",
-        last_name: "",
-        image_url: "",
-      });
-    }
-  }, [initialData, isEditing]);
-
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    try {
-      const file = event.target.files?.[0];
-      if (!file) return;
-
-      setIsUploading(true);
-
-      if (!file.type.startsWith('image/')) {
-        toast({
-          title: "Erreur",
-          description: "Veuillez sélectionner une image",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      if (file.size > 5 * 1024 * 1024) {
-        toast({
-          title: "Erreur",
-          description: "L'image ne doit pas dépasser 5MB",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `${fileName}`;
-
-      const { data, error: uploadError } = await supabase.storage
-        .from('pilots-images')
-        .upload(filePath, file);
-
-      if (uploadError) {
-        throw uploadError;
-      }
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('pilots-images')
-        .getPublicUrl(filePath);
-
-      setFormData(prev => ({ ...prev, image_url: publicUrl }));
-      toast({
-        title: "Succès",
-        description: "L'image a été téléchargée avec succès",
-      });
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue lors du téléchargement de l'image",
-        variant: "destructive",
-      });
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit(formData);
-  };
 
   return (
     <DialogContent>
@@ -153,27 +75,11 @@ const PilotForm = ({
             required
           />
         </div>
-        <div>
-          <label htmlFor="image" className="block text-sm mb-1">
-            Image
-          </label>
-          <Input
-            id="image"
-            type="file"
-            accept="image/*"
-            onChange={handleImageUpload}
-            disabled={isUploading}
-          />
-          {formData.image_url && (
-            <div className="mt-2">
-              <img
-                src={formData.image_url}
-                alt="Preview"
-                className="w-20 h-20 object-cover rounded"
-              />
-            </div>
-          )}
-        </div>
+        <ImageUpload
+          imageUrl={formData.image_url}
+          onUpload={handleImageUpload}
+          isUploading={isUploading}
+        />
         <div className="flex justify-end gap-2">
           <Button
             type="button"
