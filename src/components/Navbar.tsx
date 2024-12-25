@@ -74,21 +74,21 @@ const Navbar = () => {
   return (
     <nav className="fixed w-full bg-white shadow-sm z-50">
       <div className="container mx-auto px-4">
-        <div className="flex flex-col md:flex-row items-center justify-between py-4 md:h-16">
+        <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="text-gray-900 font-['Oswald'] font-bold text-xl tracking-wider mb-4 md:mb-0">
+          <div className="text-gray-900 font-['Oswald'] font-bold text-xl tracking-wider">
             SX TOUR
             <span className="text-primary ml-2">DOUAI</span>
           </div>
 
           {/* Navigation */}
-          <div className="flex flex-col md:flex-row items-center w-full md:w-auto">
-            <NavMenu isActive={isActive} isAdmin={isAdmin} isMobile={true} />
+          <div className="flex items-center">
+            <NavMenu isActive={isActive} isAdmin={isAdmin} />
             {isAdmin && (
               <Button
                 variant="default"
                 onClick={handleLogout}
-                className="mt-4 md:mt-0 md:ml-8 bg-primary hover:bg-primary/90 text-white font-['Oswald'] tracking-wide"
+                className="ml-8 bg-primary hover:bg-primary/90 text-white font-['Oswald'] tracking-wide"
               >
                 Déconnexion
               </Button>
