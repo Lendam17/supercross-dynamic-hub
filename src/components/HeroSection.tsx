@@ -10,7 +10,7 @@ const HeroSection = () => {
           className="absolute w-full h-full object-cover"
         >
           <source
-            src="https://player.vimeo.com/external/434045526.sd.mp4?s=c27eecc69a27dbc4ff2b87d38afc35f1a9e7c02d&profile_id=164&oauth2_token_id=57447761"
+            src="/background.mp4"
             type="video/mp4"
           />
           Votre navigateur ne supporte pas la lecture de vidéos.
