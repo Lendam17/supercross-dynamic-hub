@@ -137,7 +137,7 @@ const Admin = () => {
   }
 
   return (
-    <div className="p-6 bg-white min-h-screen">
+    <div className="min-h-screen pt-20 pb-8 px-4 sm:px-6 lg:px-8 bg-white">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Gestion des Pilotes</h1>
@@ -163,7 +163,7 @@ const Admin = () => {
           </Dialog>
         </div>
 
-        <div className="bg-white rounded-lg shadow">
+        <div className="bg-white rounded-lg shadow-md border border-gray-100">
           <PilotList
             pilots={pilots || []}
             onEdit={handleEdit}
