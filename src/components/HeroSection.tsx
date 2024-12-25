@@ -25,13 +25,13 @@ const HeroSection = () => {
         <div className="flex flex-col md:flex-row justify-center gap-4 animate-fade-in">
           <a
             href="/tickets"
-            className="bg-primary hover:bg-primary/90 text-white px-8 py-3 rounded-md font-semibold transition-colors"
+            className="bg-primary hover:bg-primary/90 text-white px-8 py-3 rounded-md font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg"
           >
             Réserver maintenant
           </a>
           <a
             href="/contact"
-            className="bg-primary hover:bg-primary/90 text-white px-8 py-3 rounded-md font-semibold transition-colors"
+            className="bg-primary hover:bg-primary/90 text-white px-8 py-3 rounded-md font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg"
           >
             Nous contacter
           </a>

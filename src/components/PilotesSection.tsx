@@ -39,14 +39,14 @@ const PilotesSection = () => {
           {pilots.map((pilot) => (
             <Card
               key={pilot.id}
-              className="overflow-hidden hover:shadow-lg transition-shadow duration-300 animate-fade-in"
+              className="overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl animate-fade-in group"
             >
               <CardContent className="p-0">
-                <div className="aspect-square relative">
+                <div className="aspect-square relative overflow-hidden">
                   <img
                     src={pilot.imageUrl}
                     alt={`${pilot.firstName} ${pilot.lastName}`}
-                    className="object-cover w-full h-full"
+                    className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-110"
                   />
                 </div>
                 <div className="p-6 bg-accent">

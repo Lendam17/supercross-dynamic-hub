@@ -53,9 +53,9 @@ const PartenairesSection = () => {
               href={partner.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="group"
+              className="group transform transition-all duration-300 hover:scale-105"
             >
-              <Card className="border-2 border-primary/20 overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl animate-fade-in"
+              <Card className="border-2 border-primary/20 overflow-hidden transition-all duration-300 hover:shadow-xl animate-fade-in bg-white/5 hover:bg-white/10"
                 style={{
                   animationDelay: `${index * 100}ms`,
                 }}>
