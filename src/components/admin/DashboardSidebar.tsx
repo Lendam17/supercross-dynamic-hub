@@ -86,7 +86,7 @@ export function DashboardSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <div className="absolute bottom-0 left-0 right-0 p-4">
+      <div className="absolute bottom-0 left-0 right-0 p-4 bg-gray-900">
         <button
           onClick={handleLogout}
           className="w-full flex items-center justify-center text-white/80 hover:text-white hover:bg-gray-800 p-4 rounded-lg transition-colors"
