@@ -18,16 +18,16 @@ const PartenairesSection = () => {
 
   if (isLoading) {
     return (
-      <section className="py-16 bg-accent">
+      <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center mb-12 text-accent-foreground">
+          <h2 className="text-4xl font-bold text-center mb-12 text-gray-900">
             Nos <span className="text-primary">Partenaires</span>
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <Card key={i} className="animate-pulse">
                 <CardContent className="p-6 flex items-center justify-center h-40">
-                  <div className="w-full h-full bg-muted rounded"></div>
+                  <div className="w-full h-full bg-gray-200 rounded"></div>
                 </CardContent>
               </Card>
             ))}
@@ -38,9 +38,9 @@ const PartenairesSection = () => {
   }
 
   return (
-    <section className="py-16 bg-accent">
+    <section className="py-16 bg-gray-50">
       <div className="container mx-auto px-4">
-        <h2 className="text-4xl font-bold text-center mb-12 text-accent-foreground">
+        <h2 className="text-4xl font-bold text-center mb-12 text-gray-900">
           Nos <span className="text-primary">Partenaires</span>
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
@@ -53,7 +53,7 @@ const PartenairesSection = () => {
               className="group transform transition-all duration-300 hover:scale-105"
             >
               <Card 
-                className="overflow-hidden transition-all duration-300 hover:shadow-xl animate-fade-in bg-white/5 hover:bg-white/10 border-0"
+                className="overflow-hidden transition-all duration-300 hover:shadow-xl animate-fade-in bg-white border border-gray-200"
                 style={{
                   animationDelay: `${index * 100}ms`,
                 }}

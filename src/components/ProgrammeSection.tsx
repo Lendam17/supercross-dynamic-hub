@@ -42,28 +42,28 @@ const activities: Activity[] = [
 
 const ProgrammeSection = () => {
   return (
-    <section className="py-12 sm:py-16 bg-background">
+    <section className="py-12 sm:py-16 bg-white">
       <div className="container mx-auto px-4">
-        <h2 className="text-3xl sm:text-4xl font-bold text-center mb-8 sm:mb-12">
+        <h2 className="text-3xl sm:text-4xl font-bold text-center mb-8 sm:mb-12 text-gray-900">
           Le <span className="text-primary">Programme</span>
         </h2>
         <div className="max-w-3xl mx-auto">
-          <Card className="border-2 border-primary/20">
+          <Card className="border border-gray-200">
             <CardContent className="p-4 sm:p-6">
               <div className="space-y-4 sm:space-y-6">
                 {activities.map((activity, index) => (
                   <div
                     key={index}
-                    className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-lg hover:bg-accent/5 transition-colors animate-fade-in"
+                    className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-lg hover:bg-gray-50 transition-colors animate-fade-in"
                     style={{
                       animationDelay: `${index * 100}ms`,
                     }}
                   >
-                    <div className="bg-accent/5 p-2 sm:p-3 rounded-full">
+                    <div className="bg-gray-50 p-2 sm:p-3 rounded-full">
                       {activity.icon}
                     </div>
                     <div className="flex-grow">
-                      <h3 className="text-base sm:text-xl font-semibold">
+                      <h3 className="text-base sm:text-xl font-semibold text-gray-900">
                         {activity.title}
                       </h3>
                       <p className="text-primary font-medium text-sm sm:text-base">

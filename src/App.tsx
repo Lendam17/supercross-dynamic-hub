@@ -22,7 +22,6 @@ const App = () => {
   useEffect(() => {
     supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_OUT') {
-        // Rediriger vers la page de connexion si l'utilisateur se déconnecte
         window.location.href = '/admin/login';
       }
     });
@@ -42,7 +41,7 @@ const App = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen bg-white">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
     );
@@ -54,9 +53,9 @@ const App = () => {
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <div className="flex flex-col min-h-screen">
+          <div className="flex flex-col min-h-screen bg-white">
             <Navbar />
-            <main className="flex-grow">
+            <main className="flex-grow pt-16">
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/tickets" element={<Tickets />} />

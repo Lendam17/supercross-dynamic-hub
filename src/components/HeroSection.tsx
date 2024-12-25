@@ -13,14 +13,14 @@ const HeroSection = () => {
           <source src="/SXTour2024.mp4" type="video/mp4" />
           Votre navigateur ne supporte pas la lecture de vidéos.
         </video>
-        <div className="absolute inset-0 bg-black/70" />
+        <div className="absolute inset-0 bg-black/60" />
       </div>
       <div className="relative container mx-auto px-4 text-center">
         <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-white mb-6 animate-fade-in">
           SX TOUR
           <span className="text-primary ml-2">DOUAI</span>
         </h1>
-        <p className="text-xl sm:text-2xl md:text-3xl text-gray-300 mb-8 animate-slide-up font-light max-w-3xl mx-auto">
+        <p className="text-xl sm:text-2xl md:text-3xl text-gray-200 mb-8 animate-slide-up font-light max-w-3xl mx-auto">
           Le plus grand événement de Supercross du Nord de la France
         </p>
         <div className="flex flex-col sm:flex-row justify-center gap-4 animate-scale-in">
