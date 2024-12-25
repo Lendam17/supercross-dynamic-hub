@@ -1,5 +1,6 @@
-import { Home, Ticket, MessageSquare, LayoutDashboard, Users } from "lucide-react";
+import { Home, Ticket, MessageSquare, LayoutDashboard, Users, Menu } from "lucide-react";
 import { NavLink } from "./NavLink";
+import { useState } from "react";
 
 interface NavMenuProps {
   isActive: (path: string) => boolean;
@@ -9,6 +10,8 @@ interface NavMenuProps {
 }
 
 export const NavMenu = ({ isActive, isAdmin, isMobile = false, onItemClick }: NavMenuProps) => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   const menuItems = [
     { path: "/", label: "Accueil", icon: Home },
     { path: "/tickets", label: "Tickets", icon: Ticket },
@@ -18,28 +21,53 @@ export const NavMenu = ({ isActive, isAdmin, isMobile = false, onItemClick }: Na
 
   // Icônes du menu admin pour mobile
   const adminMenuItems = [
-    { path: "/admin", icon: LayoutDashboard },
-    { path: "/admin/pilots", icon: Users },
     { path: "/admin/messages", icon: MessageSquare },
+    { path: "/admin/pilots", icon: Users },
+    { path: "/admin", icon: LayoutDashboard },
   ];
+
+  const handleItemClick = () => {
+    setIsMenuOpen(false);
+    onItemClick?.();
+  };
 
   return (
     <div className="flex flex-col items-center w-full md:w-auto">
       {/* Menu principal */}
-      <div className={`flex ${isMobile ? 'gap-6' : 'gap-8'} items-center justify-center`}>
-        {menuItems.map(({ path, label, icon: Icon }) => (
-          <NavLink key={path} to={path} isActive={isActive(path)} onClick={onItemClick}>
-            <Icon className={`h-5 w-5 ${isMobile ? 'block md:hidden' : 'hidden md:block'}`} />
-            <span className={isMobile ? 'hidden md:block' : 'block'}>{label}</span>
-          </NavLink>
-        ))}
-      </div>
+      {isMobile ? (
+        <div className="w-full md:hidden">
+          {/* Bouton hamburger */}
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="flex items-center justify-center p-2 mb-4"
+          >
+            <Menu className="h-6 w-6 text-gray-900" />
+          </button>
+          
+          {/* Menu mobile déroulant */}
+          <div className={`${isMenuOpen ? 'flex' : 'hidden'} flex-col items-center gap-4 mb-4`}>
+            {menuItems.map(({ path, label }) => (
+              <NavLink key={path} to={path} isActive={isActive(path)} onClick={handleItemClick}>
+                <span>{label}</span>
+              </NavLink>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="hidden md:flex gap-8 items-center">
+          {menuItems.map(({ path, label }) => (
+            <NavLink key={path} to={path} isActive={isActive(path)} onClick={handleItemClick}>
+              <span>{label}</span>
+            </NavLink>
+          ))}
+        </div>
+      )}
 
-      {/* Menu admin mobile */}
+      {/* Menu admin mobile (icônes uniquement) */}
       {isAdmin && isMobile && (
-        <div className="flex gap-8 mt-4 p-3 bg-accent rounded-lg md:hidden">
+        <div className="flex gap-8 p-3 bg-accent rounded-lg md:hidden">
           {adminMenuItems.map(({ path, icon: Icon }) => (
-            <NavLink key={path} to={path} isActive={isActive(path)} onClick={onItemClick}>
+            <NavLink key={path} to={path} isActive={isActive(path)} onClick={handleItemClick}>
               <Icon className="h-6 w-6 text-white" />
             </NavLink>
           ))}
