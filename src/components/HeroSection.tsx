@@ -1,13 +1,18 @@
 const HeroSection = () => {
+  console.log("Trying to load video from:", "/SXTour2024.mp4");
+  
   return (
-    <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      <div className="absolute inset-0">
+    <div className="relative min-h-screen flex items-center justify-center">
+      <div className="absolute inset-0 z-0">
         <video
           autoPlay
           muted
           loop
           playsInline
-          className="absolute w-full h-full object-cover"
+          className="w-full h-full object-cover"
+          onError={(e) => console.error("Video error:", e)}
+          onLoadStart={() => console.log("Video started loading")}
+          onLoadedData={() => console.log("Video loaded successfully")}
         >
           <source
             src="/SXTour2024.mp4"
@@ -17,7 +22,7 @@ const HeroSection = () => {
         </video>
         <div className="absolute inset-0 bg-black/30" />
       </div>
-      <div className="relative container mx-auto px-4 text-center">
+      <div className="relative z-10 container mx-auto px-4 text-center">
         <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 animate-fade-in">
           SX TOUR
           <span className="text-primary"> DOUAI</span>
