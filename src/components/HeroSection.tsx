@@ -9,7 +9,7 @@ const HeroSection = () => {
           playsInline
           className="absolute w-full h-full object-cover"
         >
-          <source src="/SXTour2024.mp4" type="video/mp4" />
+          <source src="../SXTour2024.mp4" type="video/mp4" />
           Votre navigateur ne supporte pas la lecture de vidéos.
         </video>
         <div className="absolute inset-0 bg-black/30" />
