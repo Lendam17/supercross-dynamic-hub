@@ -17,11 +17,9 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      
+      await supabase.auth.signOut();
       setIsAdmin(false);
-      navigate("/admin/login");
+      navigate("/admin/login", { replace: true });
       toast({
         title: "Déconnexion réussie",
         description: "Vous avez été déconnecté avec succès.",
@@ -38,15 +36,20 @@ const Navbar = () => {
 
   useEffect(() => {
     const checkAdmin = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        const { data: adminUser } = await supabase
-          .from("admin_users")
-          .select("email")
-          .eq("email", session.user.email)
-          .single();
-        setIsAdmin(!!adminUser);
-      } else {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          const { data: adminUser } = await supabase
+            .from("admin_users")
+            .select("email")
+            .eq("email", session.user.email)
+            .single();
+          setIsAdmin(!!adminUser);
+        } else {
+          setIsAdmin(false);
+        }
+      } catch (error) {
+        console.error("Error checking admin status:", error);
         setIsAdmin(false);
       }
     };
@@ -54,13 +57,23 @@ const Navbar = () => {
     checkAdmin();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_OUT') {
+        setIsAdmin(false);
+        return;
+      }
+
       if (session) {
-        const { data: adminUser } = await supabase
-          .from("admin_users")
-          .select("email")
-          .eq("email", session.user.email)
-          .single();
-        setIsAdmin(!!adminUser);
+        try {
+          const { data: adminUser } = await supabase
+            .from("admin_users")
+            .select("email")
+            .eq("email", session.user.email)
+            .single();
+          setIsAdmin(!!adminUser);
+        } catch (error) {
+          console.error("Error checking admin status:", error);
+          setIsAdmin(false);
+        }
       } else {
         setIsAdmin(false);
       }

@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -18,9 +19,12 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
             .single();
 
           setIsAuthenticated(!!adminUser);
+        } else {
+          setIsAuthenticated(false);
         }
       } catch (error) {
         console.error("Error checking authentication:", error);
+        setIsAuthenticated(false);
       } finally {
         setLoading(false);
       }
@@ -29,14 +33,25 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     checkAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session) {
-        const { data: adminUser } = await supabase
-          .from("admin_users")
-          .select("email")
-          .eq("email", session.user.email)
-          .single();
+      if (event === 'SIGNED_OUT') {
+        setIsAuthenticated(false);
+        navigate('/admin/login', { replace: true });
+        return;
+      }
 
-        setIsAuthenticated(!!adminUser);
+      if (session) {
+        try {
+          const { data: adminUser } = await supabase
+            .from("admin_users")
+            .select("email")
+            .eq("email", session.user.email)
+            .single();
+
+          setIsAuthenticated(!!adminUser);
+        } catch (error) {
+          console.error("Error checking authentication:", error);
+          setIsAuthenticated(false);
+        }
       } else {
         setIsAuthenticated(false);
       }
@@ -46,7 +61,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [navigate]);
 
   if (loading) {
     return (
