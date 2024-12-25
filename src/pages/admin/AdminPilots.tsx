@@ -141,39 +141,41 @@ const AdminPilots = () => {
 
   return (
     <DashboardLayout>
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-        <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
-          <Users className="h-8 w-8 mb-2 sm:hidden text-primary" />
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Gestion des Pilotes</h1>
+      <div className="max-w-5xl mx-auto">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+          <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
+            <Users className="h-8 w-8 mb-2 sm:hidden text-primary" />
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Gestion des Pilotes</h1>
+          </div>
+          <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <DialogTrigger asChild>
+              <Button
+                onClick={() => {
+                  setEditingPilot(null);
+                  setIsOpen(true);
+                }}
+                className="w-full sm:w-auto bg-primary hover:bg-primary/90"
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Ajouter un pilote
+              </Button>
+            </DialogTrigger>
+            <PilotForm
+              onSubmit={handleSubmit}
+              initialData={editingPilot || undefined}
+              setIsOpen={setIsOpen}
+              isEditing={!!editingPilot}
+            />
+          </Dialog>
         </div>
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
-          <DialogTrigger asChild>
-            <Button
-              onClick={() => {
-                setEditingPilot(null);
-                setIsOpen(true);
-              }}
-              className="w-full sm:w-auto bg-primary hover:bg-primary/90"
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Ajouter un pilote
-            </Button>
-          </DialogTrigger>
-          <PilotForm
-            onSubmit={handleSubmit}
-            initialData={editingPilot || undefined}
-            setIsOpen={setIsOpen}
-            isEditing={!!editingPilot}
-          />
-        </Dialog>
-      </div>
 
-      <div className="bg-white rounded-lg shadow-md border border-gray-100">
-        <PilotList
-          pilots={pilots || []}
-          onEdit={handleEdit}
-          onDelete={(id) => deletePilotMutation.mutate(id)}
-        />
+        <div className="bg-white rounded-lg shadow-md">
+          <PilotList
+            pilots={pilots || []}
+            onEdit={handleEdit}
+            onDelete={(id) => deletePilotMutation.mutate(id)}
+          />
+        </div>
       </div>
     </DashboardLayout>
   );

@@ -4,7 +4,6 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -37,10 +36,9 @@ export function DashboardSidebar() {
   ];
 
   return (
-    <Sidebar className="fixed inset-y-0 left-0 z-50 w-64 bg-gray-900">
+    <Sidebar className="fixed inset-y-0 left-0 z-50 w-20 bg-gray-900">
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-white/70">Dashboard</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => (
@@ -48,11 +46,11 @@ export function DashboardSidebar() {
                   <SidebarMenuButton
                     asChild
                     isActive={isActive(item.path)}
-                    className="text-white/80 hover:text-white hover:bg-gray-800"
+                    className="flex h-16 w-16 flex-col items-center justify-center gap-1 text-white/80 hover:text-white hover:bg-gray-800"
+                    tooltip={item.label}
                   >
                     <Link to={item.path}>
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.label}</span>
+                      <item.icon className="h-6 w-6" />
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
