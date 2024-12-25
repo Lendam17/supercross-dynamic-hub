@@ -21,7 +21,7 @@ const PilotesSection = () => {
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <h2 className="text-4xl font-bold text-center mb-12 text-gray-900">
-            <span className="text-primary">LES PILOTES</span>
+            LES <span className="text-primary">PILOTES</span>
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[1, 2, 3].map((i) => (
@@ -44,7 +44,7 @@ const PilotesSection = () => {
     <section className="py-16 bg-white">
       <div className="container mx-auto px-4">
         <h2 className="text-4xl font-bold text-center mb-12 text-gray-900">
-          <span className="text-primary">LES PILOTES</span>
+          LES <span className="text-primary">PILOTES</span>
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {pilots?.map((pilot) => (
