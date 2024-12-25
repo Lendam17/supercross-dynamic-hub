@@ -18,7 +18,7 @@ const Navbar = () => {
     <nav className="fixed w-full bg-black/90 backdrop-blur-sm z-50">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <Link to="/" className="text-white font-bold text-xl">
+          <Link to="/" className="text-white font-['Oswald'] font-bold text-xl tracking-wider">
             SX TOUR
             <span className="text-primary ml-2">DOUAI</span>
           </Link>
@@ -30,8 +30,8 @@ const Navbar = () => {
               className={`${
                 isActive("/")
                   ? "text-primary"
-                  : "text-white hover:text-primary transition-colors"
-              }`}
+                  : "text-white hover:text-primary transition-colors duration-300"
+              } font-['Oswald'] tracking-wide`}
             >
               Accueil
             </Link>
@@ -40,8 +40,8 @@ const Navbar = () => {
               className={`${
                 isActive("/tickets")
                   ? "text-primary"
-                  : "text-white hover:text-primary transition-colors"
-              }`}
+                  : "text-white hover:text-primary transition-colors duration-300"
+              } font-['Oswald'] tracking-wide`}
             >
               Tickets
             </Link>
@@ -50,8 +50,8 @@ const Navbar = () => {
               className={`${
                 isActive("/contact")
                   ? "text-primary"
-                  : "text-white hover:text-primary transition-colors"
-              }`}
+                  : "text-white hover:text-primary transition-colors duration-300"
+              } font-['Oswald'] tracking-wide`}
             >
               Contact
             </Link>
@@ -59,7 +59,7 @@ const Navbar = () => {
 
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden text-white p-2"
+            className="md:hidden text-white p-2 hover:text-primary transition-colors duration-300"
             onClick={toggleMenu}
             aria-label="Toggle menu"
           >
@@ -69,15 +69,15 @@ const Navbar = () => {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 bg-black/90">
+          <div className="md:hidden animate-fade-in">
+            <div className="px-2 pt-2 pb-3 space-y-1">
               <Link
                 to="/"
                 className={`block px-3 py-2 rounded-md ${
                   isActive("/")
                     ? "text-primary"
-                    : "text-white hover:text-primary transition-colors"
-                }`}
+                    : "text-white hover:text-primary transition-colors duration-300"
+                } font-['Oswald'] tracking-wide`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 Accueil
@@ -87,8 +87,8 @@ const Navbar = () => {
                 className={`block px-3 py-2 rounded-md ${
                   isActive("/tickets")
                     ? "text-primary"
-                    : "text-white hover:text-primary transition-colors"
-                }`}
+                    : "text-white hover:text-primary transition-colors duration-300"
+                } font-['Oswald'] tracking-wide`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 Tickets
@@ -98,8 +98,8 @@ const Navbar = () => {
                 className={`block px-3 py-2 rounded-md ${
                   isActive("/contact")
                     ? "text-primary"
-                    : "text-white hover:text-primary transition-colors"
-                }`}
+                    : "text-white hover:text-primary transition-colors duration-300"
+                } font-['Oswald'] tracking-wide`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 Contact
