@@ -15,7 +15,7 @@ const HeroSection = () => {
           />
           Votre navigateur ne supporte pas la lecture de vidéos.
         </video>
-        <div className="absolute inset-0 bg-black/80" />
+        <div className="absolute inset-0 bg-black/50" />
       </div>
       <div className="relative container mx-auto px-4 text-center">
         <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 animate-fade-in">
