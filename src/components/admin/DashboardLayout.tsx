@@ -5,10 +5,10 @@ import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={true}>
       <div className="flex min-h-screen w-full bg-white">
         {/* Mobile menu button */}
         <Button

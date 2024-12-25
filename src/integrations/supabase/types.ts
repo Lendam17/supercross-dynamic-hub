@@ -54,6 +54,24 @@ export type Database = {
         }
         Relationships: []
       }
+      page_visits: {
+        Row: {
+          id: string
+          page_path: string
+          visited_at: string
+        }
+        Insert: {
+          id?: string
+          page_path: string
+          visited_at?: string
+        }
+        Update: {
+          id?: string
+          page_path?: string
+          visited_at?: string
+        }
+        Relationships: []
+      }
       partners: {
         Row: {
           created_at: string
@@ -105,6 +123,21 @@ export type Database = {
           image_url?: string | null
           last_name?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      ticket_button_clicks: {
+        Row: {
+          clicked_at: string
+          id: string
+        }
+        Insert: {
+          clicked_at?: string
+          id?: string
+        }
+        Update: {
+          clicked_at?: string
+          id?: string
         }
         Relationships: []
       }
