@@ -47,7 +47,7 @@ const handler = async (req: Request): Promise<Response> => {
       },
       body: JSON.stringify({
         from: "SX Tour - Douai <onboarding@resend.dev>",
-        to: ["delivered@resend.dev"], // Replace with your email
+        to: ["contact@sxtour-douai.fr"], // Changé pour une adresse dédiée
         subject: `Nouveau message de contact - ${contactRequest.subject}`,
         html: `
           <h2>Nouveau message de contact</h2>
