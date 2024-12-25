@@ -42,7 +42,7 @@ export function MessageDialog({
             <div className="flex justify-between text-sm text-gray-500">
               <span>De: {message.email}</span>
               <span>
-                {format(new Date(message.created_at), "dd MMM yyyy HH:mm", {
+                {format(new Date(message.created_at), "dd/MM/yyyy HH:mm", {
                   locale: fr,
                 })}
               </span>

@@ -57,7 +57,7 @@ export function MessageList({
               />
             </TableCell>
             <TableCell className="whitespace-nowrap">
-              {format(new Date(message.created_at), "dd MMM yyyy HH:mm", {
+              {format(new Date(message.created_at), "dd/MM/yyyy HH:mm", {
                 locale: fr,
               })}
             </TableCell>
