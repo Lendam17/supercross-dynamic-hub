@@ -1,4 +1,4 @@
-import { Home, Ticket, MessageSquare, LayoutDashboard, Users } from "lucide-react";
+import { Home, Ticket, MessageSquare, LayoutDashboard, Users, Menu } from "lucide-react";
 import { NavLink } from "./NavLink";
 import { useState } from "react";
 
