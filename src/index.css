@@ -35,11 +35,11 @@
   }
 
   body {
-    @apply bg-accent text-foreground font-['Roboto'];
+    @apply bg-white text-foreground font-['Roboto'];
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-['Oswald'] uppercase tracking-wide;
+    @apply font-['Oswald'] uppercase tracking-wide text-gray-800;
   }
 
   .btn {
@@ -60,6 +60,6 @@
   }
 
   .gradient-bg {
-    @apply bg-gradient-to-b from-accent to-black;
+    @apply bg-gradient-to-b from-gray-50 to-white;
   }
 }

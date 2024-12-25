@@ -137,36 +137,40 @@ const Admin = () => {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-        <h1 className="text-2xl md:text-3xl font-bold">Gestion des Pilotes</h1>
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
-          <DialogTrigger asChild>
-            <Button
-              onClick={() => {
-                setEditingPilot(null);
-                setIsOpen(true);
-              }}
-              className="w-full sm:w-auto"
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Ajouter un pilote
-            </Button>
-          </DialogTrigger>
-          <PilotForm
-            onSubmit={handleSubmit}
-            initialData={editingPilot || undefined}
-            setIsOpen={setIsOpen}
-            isEditing={!!editingPilot}
-          />
-        </Dialog>
-      </div>
+    <div className="p-6 bg-white min-h-screen">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Gestion des Pilotes</h1>
+          <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <DialogTrigger asChild>
+              <Button
+                onClick={() => {
+                  setEditingPilot(null);
+                  setIsOpen(true);
+                }}
+                className="w-full sm:w-auto bg-primary hover:bg-primary/90"
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Ajouter un pilote
+              </Button>
+            </DialogTrigger>
+            <PilotForm
+              onSubmit={handleSubmit}
+              initialData={editingPilot || undefined}
+              setIsOpen={setIsOpen}
+              isEditing={!!editingPilot}
+            />
+          </Dialog>
+        </div>
 
-      <PilotList
-        pilots={pilots || []}
-        onEdit={handleEdit}
-        onDelete={(id) => deletePilotMutation.mutate(id)}
-      />
+        <div className="bg-white rounded-lg shadow">
+          <PilotList
+            pilots={pilots || []}
+            onEdit={handleEdit}
+            onDelete={(id) => deletePilotMutation.mutate(id)}
+          />
+        </div>
+      </div>
     </div>
   );
 };

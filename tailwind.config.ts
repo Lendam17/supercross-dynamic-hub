@@ -33,8 +33,8 @@ export default {
           foreground: "#FFFFFF",
         },
         accent: {
-          DEFAULT: "#222222",
-          foreground: "#FFFFFF",
+          DEFAULT: "#FFFFFF",
+          foreground: "#222222",
         },
       },
       keyframes: {
