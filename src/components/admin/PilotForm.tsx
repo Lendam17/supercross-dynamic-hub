@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -31,12 +31,23 @@ const PilotForm = ({
   isEditing,
 }: PilotFormProps) => {
   const { toast } = useToast();
-  const [formData, setFormData] = useState({
-    first_name: initialData?.first_name || "",
-    last_name: initialData?.last_name || "",
-    image_url: initialData?.image_url || "",
-  });
   const [isUploading, setIsUploading] = useState(false);
+  const [formData, setFormData] = useState({
+    first_name: "",
+    last_name: "",
+    image_url: "",
+  });
+
+  // Effet pour pré-remplir le formulaire avec les données initiales en mode édition
+  useEffect(() => {
+    if (initialData && isEditing) {
+      setFormData({
+        first_name: initialData.first_name,
+        last_name: initialData.last_name,
+        image_url: initialData.image_url,
+      });
+    }
+  }, [initialData, isEditing]);
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
@@ -45,7 +56,6 @@ const PilotForm = ({
 
       setIsUploading(true);
 
-      // Vérifier le type de fichier
       if (!file.type.startsWith('image/')) {
         toast({
           title: "Erreur",
@@ -55,7 +65,6 @@ const PilotForm = ({
         return;
       }
 
-      // Vérifier la taille du fichier (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
         toast({
           title: "Erreur",
@@ -81,7 +90,7 @@ const PilotForm = ({
         .from('pilots-images')
         .getPublicUrl(filePath);
 
-      setFormData({ ...formData, image_url: publicUrl });
+      setFormData(prev => ({ ...prev, image_url: publicUrl }));
       toast({
         title: "Succès",
         description: "L'image a été téléchargée avec succès",
@@ -101,6 +110,14 @@ const PilotForm = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit(formData);
+    // Réinitialiser le formulaire uniquement si ce n'est pas en mode édition
+    if (!isEditing) {
+      setFormData({
+        first_name: "",
+        last_name: "",
+        image_url: "",
+      });
+    }
   };
 
   return (
