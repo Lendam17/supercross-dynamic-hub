@@ -47,7 +47,7 @@ const handler = async (req: Request): Promise<Response> => {
       },
       body: JSON.stringify({
         from: "SX Tour - Douai <onboarding@resend.dev>",
-        to: ["VOTRE_EMAIL@gmail.com"], // Remplacez par votre adresse Gmail
+        to: ["contact.sxtour.douai@gmail.com"],
         subject: `Nouveau message de contact - ${contactRequest.subject}`,
         html: `
           <h2>Nouveau message de contact</h2>
