@@ -1,15 +1,14 @@
-import { Home, Ticket, MessageSquare, LayoutDashboard, Menu } from "lucide-react";
+import { Home, Ticket, MessageSquare, LayoutDashboard, LogOut, Menu } from "lucide-react";
 import { NavLink } from "./NavLink";
 import { useState } from "react";
 
 interface NavMenuProps {
   isActive: (path: string) => boolean;
   isAdmin: boolean;
-  isMobile?: boolean;
-  onItemClick?: () => void;
+  onLogout?: () => void;
 }
 
-export const NavMenu = ({ isActive, isAdmin, isMobile = false, onItemClick }: NavMenuProps) => {
+export const NavMenu = ({ isActive, isAdmin, onLogout }: NavMenuProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const menuItems = [
@@ -21,7 +20,6 @@ export const NavMenu = ({ isActive, isAdmin, isMobile = false, onItemClick }: Na
 
   const handleItemClick = () => {
     setIsMenuOpen(false);
-    onItemClick?.();
   };
 
   return (
@@ -37,11 +35,24 @@ export const NavMenu = ({ isActive, isAdmin, isMobile = false, onItemClick }: Na
         
         {/* Menu mobile déroulant */}
         <div className={`${isMenuOpen ? 'flex' : 'hidden'} flex-col items-center gap-4 mb-4`}>
-          {menuItems.map(({ path, label }) => (
+          {menuItems.map(({ path, label, icon: Icon }) => (
             <NavLink key={path} to={path} isActive={isActive(path)} onClick={handleItemClick}>
+              <Icon className="h-4 w-4 mr-2" />
               {label}
             </NavLink>
           ))}
+          {isAdmin && (
+            <button
+              onClick={() => {
+                handleItemClick();
+                onLogout?.();
+              }}
+              className="flex items-center gap-2 text-gray-900 hover:text-primary transition-colors duration-300 font-['Oswald'] tracking-wide"
+            >
+              <LogOut className="h-4 w-4" />
+              Déconnexion
+            </button>
+          )}
         </div>
       </div>
 

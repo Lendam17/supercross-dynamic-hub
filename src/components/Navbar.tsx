@@ -83,12 +83,12 @@ const Navbar = () => {
 
           {/* Navigation */}
           <div className="flex items-center">
-            <NavMenu isActive={isActive} isAdmin={isAdmin} />
+            <NavMenu isActive={isActive} isAdmin={isAdmin} onLogout={handleLogout} />
             {isAdmin && (
               <Button
                 variant="default"
                 onClick={handleLogout}
-                className="ml-8 bg-primary hover:bg-primary/90 text-white font-['Oswald'] tracking-wide"
+                className="hidden md:inline-flex ml-8 bg-primary hover:bg-primary/90 text-white font-['Oswald'] tracking-wide"
               >
                 Déconnexion
               </Button>
