@@ -24,16 +24,37 @@ export function DashboardSidebar() {
 
   const handleLogout = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
+      // First check if we have a session
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
-      if (error) {
-        console.error("Logout error:", error);
-        // If there's an error during logout, we'll still redirect to login
-        // but with a different message
+      if (sessionError) {
+        console.error("Session check error:", sessionError);
         navigate("/admin/login");
         toast({
           title: "Note",
-          description: "Session terminée. Veuillez vous reconnecter.",
+          description: "Session expirée. Veuillez vous reconnecter.",
+        });
+        return;
+      }
+
+      if (!session) {
+        navigate("/admin/login");
+        toast({
+          title: "Note",
+          description: "Session expirée. Veuillez vous reconnecter.",
+        });
+        return;
+      }
+
+      // If we have a valid session, proceed with logout
+      const { error: signOutError } = await supabase.auth.signOut();
+      
+      if (signOutError) {
+        console.error("Logout error:", signOutError);
+        navigate("/admin/login");
+        toast({
+          title: "Note",
+          description: "Une erreur est survenue. Veuillez vous reconnecter.",
         });
         return;
       }
@@ -45,7 +66,6 @@ export function DashboardSidebar() {
       });
     } catch (error) {
       console.error("Error during logout:", error);
-      // Even if there's an error, we should redirect to login
       navigate("/admin/login");
       toast({
         title: "Note",
