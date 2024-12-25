@@ -4,14 +4,14 @@ import { DashboardSidebar } from "./DashboardSidebar";
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider defaultOpen={true}>
-      <div className="flex min-h-screen w-full bg-white">
+      <div className="flex min-h-screen w-full bg-white pt-16">
         {/* Sidebar for desktop */}
-        <div className="hidden md:flex h-screen fixed left-0 top-0 w-20">
+        <div className="hidden md:flex h-[calc(100vh-4rem)] fixed left-0 top-16 w-20 z-40">
           <DashboardSidebar />
         </div>
 
         {/* Mobile bottom navigation */}
-        <div className="md:hidden fixed bottom-0 left-0 right-0 bg-accent border-t border-gray-800 z-50">
+        <div className="md:hidden fixed bottom-0 left-0 right-0 bg-accent border-t border-gray-800 z-40">
           <DashboardSidebar />
         </div>
 
