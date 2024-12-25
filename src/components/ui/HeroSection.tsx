@@ -2,7 +2,7 @@ const HeroSection = () => {
   console.log("Trying to load video from:", "/SXTour2024.mp4");
   
   return (
-    <div className="relative min-h-screen flex items-center justify-center">
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0 z-0">
         <video
           autoPlay
