@@ -1,1 +1,12 @@
 project_id = "arfgagbqpsosurwjjaah"
+
+[api]
+enabled = true
+[auth]
+enabled = true
+[realtime]
+enabled = true
+
+[[functions]]
+name = "send-contact-email"
+verify_jwt = false
