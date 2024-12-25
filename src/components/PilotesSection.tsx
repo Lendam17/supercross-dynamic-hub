@@ -1,34 +1,45 @@
 import { Card, CardContent } from "@/components/ui/card";
-
-interface Pilot {
-  id: number;
-  firstName: string;
-  lastName: string;
-  imageUrl: string;
-}
-
-const pilots: Pilot[] = [
-  {
-    id: 1,
-    firstName: "Thomas",
-    lastName: "Ramette",
-    imageUrl: "/placeholder.svg",
-  },
-  {
-    id: 2,
-    firstName: "Cédric",
-    lastName: "Soubeyras",
-    imageUrl: "/placeholder.svg",
-  },
-  {
-    id: 3,
-    firstName: "Anthony",
-    lastName: "Bourdon",
-    imageUrl: "/placeholder.svg",
-  },
-];
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const PilotesSection = () => {
+  const { data: pilots, isLoading } = useQuery({
+    queryKey: ['pilots'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('pilots')
+        .select('*')
+        .order('created_at', { ascending: true });
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  if (isLoading) {
+    return (
+      <section className="py-16 bg-background">
+        <div className="container mx-auto px-4">
+          <h2 className="text-4xl font-bold text-center mb-12">
+            Nos <span className="text-primary">Pilotes</span>
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[1, 2, 3].map((i) => (
+              <Card key={i} className="animate-pulse">
+                <CardContent className="p-0">
+                  <div className="aspect-square bg-muted"></div>
+                  <div className="p-6 bg-accent">
+                    <div className="h-6 bg-muted rounded w-2/3"></div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="py-16 bg-background">
       <div className="container mx-auto px-4">
@@ -36,7 +47,7 @@ const PilotesSection = () => {
           Nos <span className="text-primary">Pilotes</span>
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {pilots.map((pilot) => (
+          {pilots?.map((pilot) => (
             <Card
               key={pilot.id}
               className="overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl animate-fade-in group"
@@ -44,15 +55,15 @@ const PilotesSection = () => {
               <CardContent className="p-0">
                 <div className="aspect-square relative overflow-hidden">
                   <img
-                    src={pilot.imageUrl}
-                    alt={`${pilot.firstName} ${pilot.lastName}`}
+                    src={pilot.image_url || '/placeholder.svg'}
+                    alt={`${pilot.first_name} ${pilot.last_name}`}
                     className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-110"
                   />
                 </div>
                 <div className="p-6 bg-accent">
                   <h3 className="text-xl font-semibold text-accent-foreground">
-                    {pilot.firstName}{" "}
-                    <span className="text-primary">{pilot.lastName}</span>
+                    {pilot.first_name}{" "}
+                    <span className="text-primary">{pilot.last_name}</span>
                   </h3>
                 </div>
               </CardContent>
