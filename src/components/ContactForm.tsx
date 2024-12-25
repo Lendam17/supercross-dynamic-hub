@@ -21,7 +21,7 @@ const ContactForm = () => {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
-        <label htmlFor="name" className="block text-white mb-2">
+        <label htmlFor="name" className="block text-gray-700 font-medium mb-2">
           Nom
         </label>
         <input
@@ -29,12 +29,12 @@ const ContactForm = () => {
           id="name"
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          className="w-full p-3 rounded-md bg-accent text-white border border-gray-700 focus:border-primary focus:outline-none"
+          className="w-full p-3 rounded-lg bg-white/50 border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-colors"
           required
         />
       </div>
       <div>
-        <label htmlFor="email" className="block text-white mb-2">
+        <label htmlFor="email" className="block text-gray-700 font-medium mb-2">
           Email
         </label>
         <input
@@ -42,12 +42,12 @@ const ContactForm = () => {
           id="email"
           value={formData.email}
           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-          className="w-full p-3 rounded-md bg-accent text-white border border-gray-700 focus:border-primary focus:outline-none"
+          className="w-full p-3 rounded-lg bg-white/50 border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-colors"
           required
         />
       </div>
       <div>
-        <label htmlFor="message" className="block text-white mb-2">
+        <label htmlFor="message" className="block text-gray-700 font-medium mb-2">
           Message
         </label>
         <textarea
@@ -55,13 +55,13 @@ const ContactForm = () => {
           value={formData.message}
           onChange={(e) => setFormData({ ...formData, message: e.target.value })}
           rows={4}
-          className="w-full p-3 rounded-md bg-accent text-white border border-gray-700 focus:border-primary focus:outline-none"
+          className="w-full p-3 rounded-lg bg-white/50 border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-colors"
           required
         />
       </div>
       <button
         type="submit"
-        className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 px-4 rounded-md transition-colors"
+        className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
       >
         Envoyer
       </button>

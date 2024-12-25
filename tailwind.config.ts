@@ -33,9 +33,24 @@ export default {
           foreground: "#FFFFFF",
         },
         accent: {
-          DEFAULT: "#FFFFFF",
-          foreground: "#222222",
+          DEFAULT: "#222222",
+          foreground: "#FFFFFF",
         },
+        soft: {
+          green: "#F2FCE2",
+          yellow: "#FEF7CD",
+          orange: "#FEC6A1",
+          purple: "#E5DEFF",
+          pink: "#FFDEE2",
+          peach: "#FDE1D3",
+          blue: "#D3E4FD",
+          gray: "#F1F0FB",
+        },
+      },
+      backgroundImage: {
+        'gradient-soft': 'linear-gradient(109.6deg, rgba(223,234,247,1) 11.2%, rgba(244,248,252,1) 91.1%)',
+        'gradient-warm': 'linear-gradient(to right, #ffc3a0 0%, #ffafbd 100%)',
+        'gradient-cool': 'linear-gradient(to top, #accbee 0%, #e7f0fd 100%)',
       },
       keyframes: {
         "accordion-down": {
