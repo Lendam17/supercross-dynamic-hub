@@ -19,7 +19,7 @@ export function DashboardSidebar() {
   };
 
   return (
-    <Sidebar className="bg-accent">
+    <Sidebar className="bg-gray-900 fixed inset-y-0 left-0 z-50 w-64 transform transition-transform duration-200 ease-in-out md:relative md:translate-x-0">
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel className="text-white/70">Dashboard</SidebarGroupLabel>
@@ -29,7 +29,7 @@ export function DashboardSidebar() {
                 <SidebarMenuButton
                   asChild
                   isActive={isActive("/admin/pilots")}
-                  className="text-white/80 hover:text-white hover:bg-accent/50"
+                  className="text-white/80 hover:text-white hover:bg-gray-800"
                 >
                   <Link to="/admin/pilots">
                     <Users className="h-4 w-4" />
@@ -41,7 +41,7 @@ export function DashboardSidebar() {
                 <SidebarMenuButton
                   asChild
                   isActive={isActive("/admin/messages")}
-                  className="text-white/80 hover:text-white hover:bg-accent/50"
+                  className="text-white/80 hover:text-white hover:bg-gray-800"
                 >
                   <Link to="/admin/messages">
                     <MessageSquare className="h-4 w-4" />
