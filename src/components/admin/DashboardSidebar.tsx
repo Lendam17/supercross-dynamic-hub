@@ -1,99 +1,35 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@/components/ui/sidebar";
-import { Home, LogOut, MessageSquare, Users } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { NavLink } from "react-router-dom";
+import { Home, Users, MessageSquare, Building } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export function DashboardSidebar() {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const { toast } = useToast();
-
-  const isActive = (path: string) => {
-    return location.pathname === path;
-  };
-
-  const handleLogout = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      
-      navigate("/admin/login");
-      toast({
-        title: "Déconnexion réussie",
-        description: "Vous avez été déconnecté avec succès.",
-      });
-    } catch (error) {
-      console.error("Error during logout:", error);
-      navigate("/admin/login");
-      toast({
-        title: "Note",
-        description: "Session terminée. Veuillez vous reconnecter.",
-      });
-    }
-  };
-
-  const menuItems = [
-    {
-      icon: Home,
-      label: "Dashboard",
-      path: "/admin",
-    },
-    {
-      icon: Users,
-      label: "Pilotes",
-      path: "/admin/pilots",
-    },
-    {
-      icon: MessageSquare,
-      label: "Messages",
-      path: "/admin/messages",
-    },
+  const links = [
+    { to: "/admin", icon: Home, label: "Accueil" },
+    { to: "/admin/pilots", icon: Users, label: "Pilotes" },
+    { to: "/admin/messages", icon: MessageSquare, label: "Messages" },
+    { to: "/admin/partners", icon: Building, label: "Partenaires" },
   ];
 
   return (
-    <Sidebar className="fixed inset-y-0 left-0 z-50 w-20 bg-accent">
-      <SidebarContent>
-        <div className="py-4 text-center text-white text-sm font-medium">
-          Menu
-        </div>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.path}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={isActive(item.path)}
-                    className="flex h-16 w-16 flex-col items-center justify-center gap-1 text-white/80 hover:text-white hover:bg-accent/80"
-                    tooltip={item.label}
-                  >
-                    <Link to={item.path}>
-                      <item.icon className="h-8 w-8" />
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-      <div className="absolute bottom-0 left-0 right-0 p-4 bg-accent">
-        <button
-          onClick={handleLogout}
-          className="w-full flex items-center justify-center text-white/80 hover:text-white hover:bg-accent/80 p-4 rounded-lg transition-colors"
-        >
-          <LogOut className="h-8 w-8" />
-        </button>
-      </div>
-    </Sidebar>
+    <div className="h-full md:h-screen md:w-20 w-full bg-white">
+      <nav className="flex md:flex-col justify-around md:justify-start items-center h-16 md:h-full md:pt-8 md:gap-8">
+        {links.map(({ to, icon: Icon, label }) => (
+          <NavLink
+            key={to}
+            to={to}
+            className={({ isActive }) =>
+              cn(
+                "flex flex-col items-center justify-center p-2 text-gray-600 hover:text-primary transition-colors duration-200",
+                "md:w-full md:aspect-square",
+                isActive && "text-primary"
+              )
+            }
+          >
+            <Icon className="h-6 w-6" />
+            <span className="text-xs mt-1 md:text-[10px]">{label}</span>
+          </NavLink>
+        ))}
+      </nav>
+    </div>
   );
 }
