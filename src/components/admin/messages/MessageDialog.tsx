@@ -4,6 +4,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,6 +13,7 @@ import { fr } from "date-fns/locale";
 import { Message } from "./types";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface MessageDialogProps {
   message: Message | null;
@@ -35,6 +37,18 @@ export function MessageDialog({
 
   const handleReply = async () => {
     try {
+      // Send email using the Edge Function
+      const { data, error } = await supabase.functions.invoke("send-contact-email", {
+        body: {
+          to: [message.email],
+          subject: `Re: ${message.subject}`,
+          message: replyContent,
+          name: message.name,
+        },
+      });
+
+      if (error) throw error;
+
       await onReply(replyContent);
       setReplyContent("");
       toast({
@@ -56,6 +70,9 @@ export function MessageDialog({
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Message de {message.name}</DialogTitle>
+          <DialogDescription>
+            Répondez directement à ce message. La réponse sera envoyée à {message.email}
+          </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-2">

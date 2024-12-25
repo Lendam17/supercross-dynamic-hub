@@ -32,9 +32,9 @@ const handler = async (req: Request): Promise<Response> => {
     const isReply = Array.isArray(contactRequest.to);
     const emailConfig = isReply
       ? {
-          from: "SX Tour Douai <onboarding@resend.dev>",
+          from: "SX Tour Douai <contact.sxtour.douai@gmail.com>",
           to: contactRequest.to,
-          reply_to: "fabien17.dev@gmail.com",
+          reply_to: "contact.sxtour.douai@gmail.com",
           subject: contactRequest.subject,
           html: `
             <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
@@ -45,8 +45,8 @@ const handler = async (req: Request): Promise<Response> => {
           `,
         }
       : {
-          from: "SX Tour Douai <onboarding@resend.dev>",
-          to: ["fabien17.dev@gmail.com"],
+          from: "SX Tour Douai <contact.sxtour.douai@gmail.com>",
+          to: ["contact.sxtour.douai@gmail.com"],
           reply_to: contactRequest.email,
           subject: `Nouveau message de contact - ${contactRequest.subject}`,
           html: `
