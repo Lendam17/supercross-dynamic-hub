@@ -69,7 +69,7 @@ export function DashboardSidebar() {
   ];
 
   return (
-    <Sidebar className="fixed inset-y-0 left-0 z-50 w-20 bg-gray-900">
+    <Sidebar className="fixed inset-y-0 left-0 z-50 w-20 bg-accent">
       <SidebarContent>
         <div className="py-4 text-center text-white text-sm font-medium">
           Menu
@@ -82,7 +82,7 @@ export function DashboardSidebar() {
                   <SidebarMenuButton
                     asChild
                     isActive={isActive(item.path)}
-                    className="flex h-16 w-16 flex-col items-center justify-center gap-1 text-white/80 hover:text-white hover:bg-gray-800"
+                    className="flex h-16 w-16 flex-col items-center justify-center gap-1 text-white/80 hover:text-white hover:bg-accent/80"
                     tooltip={item.label}
                   >
                     <Link to={item.path}>
@@ -95,10 +95,10 @@ export function DashboardSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <div className="absolute bottom-0 left-0 right-0 p-4 bg-gray-900">
+      <div className="absolute bottom-0 left-0 right-0 p-4 bg-accent">
         <button
           onClick={handleLogout}
-          className="w-full flex items-center justify-center text-white/80 hover:text-white hover:bg-gray-800 p-4 rounded-lg transition-colors"
+          className="w-full flex items-center justify-center text-white/80 hover:text-white hover:bg-accent/80 p-4 rounded-lg transition-colors"
         >
           <LogOut className="h-8 w-8" />
         </button>
