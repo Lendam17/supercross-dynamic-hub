@@ -12,7 +12,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
         {/* Main content */}
         <main className="flex-1 w-full md:ml-64 min-h-screen">
-          <div className="container mx-auto px-4 py-8 max-w-7xl">
+          <div className="container mx-auto px-4 py-8 max-w-7xl text-center md:text-left">
             {children}
           </div>
         </main>
