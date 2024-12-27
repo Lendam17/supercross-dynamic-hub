@@ -25,7 +25,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     path: location.pathname 
   });
 
-  // Afficher le loader uniquement lors du chargement initial
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -34,13 +33,11 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  // Rediriger vers la page de connexion si non authentifié
   if (!isAuthenticated) {
     console.log("ProtectedRoute: Not authenticated, redirecting to login");
     return <Navigate to="/dashboard/login" replace state={{ from: location }} />;
   }
 
-  // Rendre le contenu protégé si authentifié
   return <>{children}</>;
 };
 

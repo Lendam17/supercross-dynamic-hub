@@ -61,20 +61,8 @@ export const useAdminAuth = () => {
     // Initial check
     checkAuth();
 
-    // Handle visibility change
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        checkAuth();
-      }
-    };
-
-    // Add visibility change listener
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    // Subscribe to auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
+    // Handle auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log("useAdminAuth: Auth state changed:", event, session?.user?.email);
       
       if (!mounted) return;
@@ -86,8 +74,18 @@ export const useAdminAuth = () => {
         return;
       }
 
-      await checkAuth();
+      checkAuth();
     });
+
+    // Handle visibility change
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        checkAuth();
+      }
+    };
+
+    // Add visibility change listener
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     // Cleanup function
     return () => {
