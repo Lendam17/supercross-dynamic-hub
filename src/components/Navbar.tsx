@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "./ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -15,6 +15,27 @@ const Navbar = () => {
   const isActive = (path: string) => {
     return location.pathname === path;
   };
+
+  const checkAdminStatus = useCallback(async (email: string | undefined) => {
+    if (!email) {
+      setIsAdmin(false);
+      return;
+    }
+
+    try {
+      const { data: adminUser, error } = await supabase
+        .from("admin_users")
+        .select("email")
+        .eq("email", email)
+        .maybeSingle();
+
+      if (error) throw error;
+      setIsAdmin(!!adminUser);
+    } catch (error) {
+      console.error("Error checking admin status:", error);
+      setIsAdmin(false);
+    }
+  }, []);
 
   const handleLogout = async () => {
     if (isLoggingOut) return;
@@ -48,36 +69,17 @@ const Navbar = () => {
   useEffect(() => {
     let mounted = true;
 
-    const checkAdmin = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!mounted) return;
-
-        if (session?.user?.email) {
-          const { data: adminUser } = await supabase
-            .from("admin_users")
-            .select("email")
-            .eq("email", session.user.email)
-            .single();
-
-          if (mounted) {
-            setIsAdmin(!!adminUser);
-          }
-        } else {
-          if (mounted) {
-            setIsAdmin(false);
-          }
-        }
-      } catch (error) {
-        console.error("Error checking admin status:", error);
-        if (mounted) {
-          setIsAdmin(false);
-        }
+    // Initial session check
+    const initializeAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (mounted && session?.user?.email) {
+        await checkAdminStatus(session.user.email);
       }
     };
 
-    checkAdmin();
+    initializeAuth();
 
+    // Auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Navbar: Auth state changed:", { event, session });
       
@@ -90,26 +92,9 @@ const Navbar = () => {
       }
 
       if (session?.user?.email) {
-        try {
-          const { data: adminUser } = await supabase
-            .from("admin_users")
-            .select("email")
-            .eq("email", session.user.email)
-            .single();
-
-          if (mounted) {
-            setIsAdmin(!!adminUser);
-          }
-        } catch (error) {
-          console.error("Error checking admin status:", error);
-          if (mounted) {
-            setIsAdmin(false);
-          }
-        }
+        await checkAdminStatus(session.user.email);
       } else {
-        if (mounted) {
-          setIsAdmin(false);
-        }
+        setIsAdmin(false);
       }
     });
 
@@ -117,7 +102,7 @@ const Navbar = () => {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, []);
+  }, [checkAdminStatus]);
 
   return (
     <nav className="fixed w-full bg-white shadow-sm z-50">
