@@ -1,4 +1,4 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
@@ -6,6 +6,7 @@ import { useEffect } from "react";
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, loading, error } = useAdminAuth();
   const { toast } = useToast();
+  const location = useLocation();
 
   useEffect(() => {
     if (error) {
@@ -17,7 +18,12 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     }
   }, [error, toast]);
 
-  console.log("ProtectedRoute: Current state:", { isAuthenticated, loading, error });
+  console.log("ProtectedRoute: Current state:", { 
+    isAuthenticated, 
+    loading, 
+    error,
+    path: location.pathname 
+  });
 
   if (loading) {
     return (
@@ -29,7 +35,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
   if (!isAuthenticated) {
     console.log("ProtectedRoute: Not authenticated, redirecting to login");
-    return <Navigate to="/dashboard/login" replace />;
+    return <Navigate to="/dashboard/login" replace state={{ from: location }} />;
   }
 
   return <>{children}</>;
