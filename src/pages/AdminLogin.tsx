@@ -20,7 +20,7 @@ const AdminLogin = () => {
           .from("admin_users")
           .select("email")
           .eq("email", session.user.email)
-          .single();
+          .maybeSingle();
 
         if (adminUser) {
           console.log("User already authenticated and is admin, redirecting to dashboard");
@@ -41,7 +41,7 @@ const AdminLogin = () => {
         .from("admin_users")
         .select("email")
         .eq("email", email)
-        .single();
+        .maybeSingle();
 
       if (!adminUser) {
         throw new Error("Accès non autorisé");
@@ -115,6 +115,6 @@ const AdminLogin = () => {
       </div>
     </div>
   );
-};
+}
 
 export default AdminLogin;

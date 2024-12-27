@@ -1,34 +1,36 @@
-import { NavLink } from "react-router-dom";
-import { Home, Users, MessageSquare } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Home, MessageSquare } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 
 export function DashboardSidebar() {
-  const links = [
-    { to: "/dashboard", icon: Home, label: "Accueil" },
-    { to: "/dashboard/pilots", icon: Users, label: "Pilotes" },
-    { to: "/dashboard/messages", icon: MessageSquare, label: "Messages" },
+  const location = useLocation();
+
+  const isActive = (path: string) => {
+    return location.pathname === path;
+  };
+
+  const menuItems = [
+    { path: "/dashboard", icon: Home, label: "Accueil" },
+    { path: "/dashboard/messages", icon: MessageSquare, label: "Messages" },
   ];
 
   return (
-    <div className="h-full w-full bg-accent">
-      <nav className="flex md:flex-col justify-around md:justify-start items-center h-16 md:h-full md:pt-8 gap-8">
-        {links.map(({ to, icon: Icon, label }) => (
-          <NavLink
-            key={to}
-            to={to}
-            className={({ isActive }) =>
-              cn(
-                "flex flex-col items-center justify-center p-2 text-white/80 hover:text-white transition-colors duration-200",
-                "md:w-full md:aspect-square",
-                isActive ? "text-white" : "text-white/80"
-              )
-            }
+    <nav className="h-full w-full">
+      <div className="flex md:flex-col items-center justify-around md:justify-start md:space-y-4 h-full py-4 bg-accent">
+        {menuItems.map((item) => (
+          <Link
+            key={item.path}
+            to={item.path}
+            className={`flex flex-col items-center justify-center w-20 h-20 text-xs text-center transition-colors ${
+              isActive(item.path)
+                ? "text-primary-foreground"
+                : "text-gray-400 hover:text-primary-foreground"
+            }`}
           >
-            <Icon className="h-6 w-6" />
-            <span className="text-xs mt-1 md:text-[10px]">{label}</span>
-          </NavLink>
+            <item.icon className="h-6 w-6 mb-1" />
+            <span>{item.label}</span>
+          </Link>
         ))}
-      </nav>
-    </div>
+      </div>
+    </nav>
   );
 }

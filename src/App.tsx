@@ -4,7 +4,6 @@ import Contact from "@/pages/Contact";
 import Tickets from "@/pages/Tickets";
 import Admin from "@/pages/Admin";
 import AdminLogin from "@/pages/AdminLogin";
-import AdminPilots from "@/pages/admin/AdminPilots";
 import AdminMessages from "@/pages/admin/AdminMessages";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Navbar from "@/components/Navbar";
@@ -24,14 +23,6 @@ function App() {
           element={
             <ProtectedRoute>
               <Admin />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/dashboard/pilots"
-          element={
-            <ProtectedRoute>
-              <AdminPilots />
             </ProtectedRoute>
           }
         />
