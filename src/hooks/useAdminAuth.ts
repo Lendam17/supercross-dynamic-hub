@@ -4,48 +4,56 @@ import { supabase } from "@/integrations/supabase/client";
 export const useAdminAuth = () => {
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const checkAdminStatus = async (email: string) => {
+    try {
+      console.log("useAdminAuth: Checking admin status for:", email);
+      const { data: adminUser, error: adminError } = await supabase
+        .from("admin_users")
+        .select("email")
+        .eq("email", email)
+        .single();
+
+      if (adminError) {
+        console.error("useAdminAuth: Admin check error:", adminError);
+        setIsAuthenticated(false);
+        setError("Erreur lors de la vérification des droits administrateur");
+        return false;
+      }
+
+      const isAdmin = !!adminUser;
+      console.log("useAdminAuth: Admin status:", isAdmin);
+      setIsAuthenticated(isAdmin);
+      setError(null);
+      return isAdmin;
+    } catch (error) {
+      console.error("useAdminAuth: Unexpected error:", error);
+      setIsAuthenticated(false);
+      setError("Une erreur inattendue s'est produite");
+      return false;
+    }
+  };
 
   useEffect(() => {
     let mounted = true;
 
-    const checkAdminStatus = async (email: string) => {
+    const initializeAuth = async () => {
       try {
-        console.log("useAdminAuth: Checking admin status for:", email);
-        const { data: adminUser, error } = await supabase
-          .from("admin_users")
-          .select("email")
-          .eq("email", email)
-          .single();
-
-        if (error) {
-          console.error("useAdminAuth: Error checking admin status:", error);
-          if (mounted) {
-            setIsAuthenticated(false);
-            setLoading(false);
-          }
-          return;
-        }
-
-        if (mounted) {
-          setIsAuthenticated(!!adminUser);
-          setLoading(false);
-          console.log("useAdminAuth: Admin status set to:", !!adminUser);
-        }
-      } catch (error) {
-        console.error("useAdminAuth: Error in checkAdminStatus:", error);
-        if (mounted) {
-          setIsAuthenticated(false);
-          setLoading(false);
-        }
-      }
-    };
-
-    const initialize = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
+        if (sessionError) {
+          console.error("useAdminAuth: Session error:", sessionError);
+          if (mounted) {
+            setError("Erreur lors de la récupération de la session");
+            setIsAuthenticated(false);
+            setLoading(false);
+          }
+          return;
+        }
+
         if (!session?.user?.email) {
-          console.log("useAdminAuth: No session or email");
+          console.log("useAdminAuth: No active session");
           if (mounted) {
             setIsAuthenticated(false);
             setLoading(false);
@@ -53,10 +61,14 @@ export const useAdminAuth = () => {
           return;
         }
 
-        await checkAdminStatus(session.user.email);
-      } catch (error) {
-        console.error("useAdminAuth: Error in initialization:", error);
         if (mounted) {
+          await checkAdminStatus(session.user.email);
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error("useAdminAuth: Init error:", error);
+        if (mounted) {
+          setError("Erreur d'initialisation de l'authentification");
           setIsAuthenticated(false);
           setLoading(false);
         }
@@ -69,23 +81,23 @@ export const useAdminAuth = () => {
       if (!mounted) return;
 
       if (event === 'SIGNED_OUT' || !session?.user?.email) {
-        console.log("useAdminAuth: User signed out or no session");
         setIsAuthenticated(false);
         setLoading(false);
+        setError(null);
         return;
       }
 
       await checkAdminStatus(session.user.email);
+      setLoading(false);
     });
 
-    initialize();
+    initializeAuth();
 
     return () => {
-      console.log("useAdminAuth: Cleaning up");
       mounted = false;
       subscription.unsubscribe();
     };
   }, []);
 
-  return { isAuthenticated, loading };
+  return { isAuthenticated, loading, error };
 };

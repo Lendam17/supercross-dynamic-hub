@@ -1,8 +1,21 @@
 import { Navigate } from "react-router-dom";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { useToast } from "@/hooks/use-toast";
+import { useEffect } from "react";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated, loading } = useAdminAuth();
+  const { isAuthenticated, loading, error } = useAdminAuth();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: "Erreur d'authentification",
+        description: error,
+        variant: "destructive",
+      });
+    }
+  }, [error, toast]);
 
   if (loading) {
     return (

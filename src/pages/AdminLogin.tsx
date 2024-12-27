@@ -13,28 +13,33 @@ const AdminLogin = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    const checkCurrentSession = async () => {
+    const checkSession = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         
         if (session?.user?.email) {
-          const { data: adminUser } = await supabase
+          const { data: adminUser, error: adminError } = await supabase
             .from("admin_users")
             .select("email")
             .eq("email", session.user.email)
             .single();
 
+          if (adminError) {
+            console.error("AdminLogin: Admin check error:", adminError);
+            return;
+          }
+
           if (adminUser) {
-            console.log("User already authenticated and is admin, redirecting to dashboard");
+            console.log("AdminLogin: User already authenticated and is admin");
             navigate("/dashboard", { replace: true });
           }
         }
       } catch (error) {
-        console.error("Error checking session:", error);
+        console.error("AdminLogin: Session check error:", error);
       }
     };
 
-    checkCurrentSession();
+    checkSession();
   }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -42,13 +47,14 @@ const AdminLogin = () => {
     setLoading(true);
 
     try {
-      const { data: adminUser } = await supabase
+      // Vérifier si l'utilisateur est un admin avant la connexion
+      const { data: adminUser, error: adminError } = await supabase
         .from("admin_users")
         .select("email")
         .eq("email", email)
         .single();
 
-      if (!adminUser) {
+      if (adminError || !adminUser) {
         throw new Error("Accès non autorisé");
       }
 
@@ -66,11 +72,11 @@ const AdminLogin = () => {
           description: "Connexion réussie",
         });
       }
-    } catch (error) {
-      console.error("Erreur de connexion:", error);
+    } catch (error: any) {
+      console.error("AdminLogin: Login error:", error);
       toast({
         title: "Erreur de connexion",
-        description: "Email ou mot de passe incorrect",
+        description: error.message || "Email ou mot de passe incorrect",
         variant: "destructive",
       });
     } finally {
