@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,7 @@ const AdminLogin = () => {
   const [loading, setLoading] = useState(false);
   const [initialCheckDone, setInitialCheckDone] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -25,7 +26,7 @@ const AdminLogin = () => {
             .from("admin_users")
             .select("email")
             .eq("email", session.user.email)
-            .single();
+            .maybeSingle();
 
           if (adminUser) {
             console.log("AdminLogin: Admin user found, redirecting to dashboard");
@@ -55,7 +56,7 @@ const AdminLogin = () => {
         .from("admin_users")
         .select("email")
         .eq("email", email)
-        .single();
+        .maybeSingle();
 
       if (!adminUser) {
         throw new Error("Accès non autorisé");
@@ -71,7 +72,8 @@ const AdminLogin = () => {
 
       if (data.user) {
         console.log("AdminLogin: Sign in successful");
-        navigate("/dashboard", { replace: true });
+        const from = location.state?.from?.pathname || "/dashboard";
+        navigate(from, { replace: true });
         toast({
           title: "Succès",
           description: "Connexion réussie",

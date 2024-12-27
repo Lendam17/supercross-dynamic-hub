@@ -42,7 +42,9 @@ export const useAdminAuth = () => {
         }
 
         if (mounted) {
-          setIsAuthenticated(!!adminUser);
+          const isAdmin = !!adminUser;
+          console.log("useAdminAuth: Admin status check result:", { isAdmin });
+          setIsAuthenticated(isAdmin);
           setError(null);
           setLoading(false);
         }
@@ -63,16 +65,15 @@ export const useAdminAuth = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("useAdminAuth: Auth state changed:", event, session?.user?.email);
       
+      if (!mounted) return;
+
       if (event === 'SIGNED_OUT') {
-        if (mounted) {
-          setIsAuthenticated(false);
-          setLoading(false);
-          setError(null);
-        }
+        setIsAuthenticated(false);
+        setLoading(false);
+        setError(null);
         return;
       }
 
-      // Re-check auth status for other events
       await checkAuth();
     });
 
