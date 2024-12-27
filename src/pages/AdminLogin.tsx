@@ -28,9 +28,6 @@ const AdminLogin = () => {
         if (adminUser) {
           console.log("AdminLogin: User already authenticated and is admin, redirecting...");
           navigate("/dashboard");
-        } else {
-          console.log("AdminLogin: User authenticated but not admin, signing out...");
-          await supabase.auth.signOut();
         }
       }
     };
@@ -45,21 +42,16 @@ const AdminLogin = () => {
 
     try {
       // 1. Vérifier si l'email est dans admin_users
-      const { data: adminCheck } = await supabase
+      console.log("AdminLogin: Checking if email is in admin_users...");
+      const { data: adminCheck, error: adminCheckError } = await supabase
         .from("admin_users")
         .select("email")
         .eq("email", email)
         .single();
 
-      if (!adminCheck) {
+      if (adminCheckError || !adminCheck) {
         console.log("AdminLogin: Email not in admin_users");
-        toast({
-          title: "Erreur",
-          description: "Vous n'êtes pas autorisé à accéder à cette page.",
-          variant: "destructive",
-        });
-        setLoading(false);
-        return;
+        throw new Error("Non autorisé");
       }
 
       // 2. Tentative de connexion
@@ -74,7 +66,7 @@ const AdminLogin = () => {
         throw signInError;
       }
 
-      console.log("AdminLogin: Login successful");
+      console.log("AdminLogin: Login successful, checking final session...");
       
       // 3. Vérification finale de la session
       const { data: { session } } = await supabase.auth.getSession();
@@ -87,13 +79,13 @@ const AdminLogin = () => {
         });
         navigate("/dashboard");
       } else {
-        throw new Error("No session after login");
+        throw new Error("Erreur de session");
       }
     } catch (error) {
       console.error("AdminLogin: Error during login:", error);
       toast({
         title: "Erreur",
-        description: "Email ou mot de passe incorrect",
+        description: error instanceof Error ? error.message : "Email ou mot de passe incorrect",
         variant: "destructive",
       });
     } finally {
