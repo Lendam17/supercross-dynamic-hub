@@ -19,7 +19,7 @@ const Navbar = () => {
     try {
       await supabase.auth.signOut();
       setIsAdmin(false);
-      navigate("/admin/login", { replace: true });
+      navigate("/dashboard/login", { replace: true });
       toast({
         title: "Déconnexion réussie",
         description: "Vous avez été déconnecté avec succès.",

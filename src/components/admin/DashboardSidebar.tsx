@@ -4,9 +4,9 @@ import { cn } from "@/lib/utils";
 
 export function DashboardSidebar() {
   const links = [
-    { to: "/admin", icon: Home, label: "Accueil" },
-    { to: "/admin/pilots", icon: Users, label: "Pilotes" },
-    { to: "/admin/messages", icon: MessageSquare, label: "Messages" },
+    { to: "/dashboard", icon: Home, label: "Accueil" },
+    { to: "/dashboard/pilots", icon: Users, label: "Pilotes" },
+    { to: "/dashboard/messages", icon: MessageSquare, label: "Messages" },
   ];
 
   return (

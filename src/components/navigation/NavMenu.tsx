@@ -17,7 +17,7 @@ export const NavMenu = ({ isActive, isAdmin, onLogout }: NavMenuProps) => {
     { path: "/", label: "Accueil", icon: Home },
     { path: "/tickets", label: "Tickets", icon: Ticket },
     { path: "/contact", label: "Contact", icon: MessageSquare },
-    ...(isAdmin ? [{ path: "/admin", label: "Dashboard", icon: LayoutDashboard }] : []),
+    ...(isAdmin ? [{ path: "/dashboard", label: "Dashboard", icon: LayoutDashboard }] : []),
   ];
 
   const handleItemClick = () => {

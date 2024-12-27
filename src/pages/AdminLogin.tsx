@@ -23,7 +23,7 @@ const AdminLogin = () => {
           .single();
 
         if (adminUser) {
-          navigate("/admin");
+          navigate("/dashboard");
         }
       }
     };
@@ -71,7 +71,7 @@ const AdminLogin = () => {
       }
 
       console.log("Login successful");
-      navigate("/admin");
+      navigate("/dashboard");
       toast({
         title: "Succès",
         description: "Connexion réussie",
