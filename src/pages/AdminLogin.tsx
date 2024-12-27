@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -11,14 +11,6 @@ const AdminLogin = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  // Nettoyage de la session au chargement
-  useEffect(() => {
-    const cleanupSession = async () => {
-      await supabase.auth.signOut();
-    };
-    cleanupSession();
-  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,9 +45,6 @@ const AdminLogin = () => {
       }
     } catch (error) {
       console.error("Erreur de connexion:", error);
-      // Nettoyage de la session en cas d'erreur
-      await supabase.auth.signOut();
-      
       toast({
         title: "Erreur de connexion",
         description: error instanceof Error ? error.message : "Email ou mot de passe incorrect",
