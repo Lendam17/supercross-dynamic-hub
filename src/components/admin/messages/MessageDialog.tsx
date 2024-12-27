@@ -92,9 +92,14 @@ export function MessageDialog({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader className="flex flex-row justify-between items-start border-b pb-4">
-          <DialogTitle className="text-lg">
-            MESSAGE DE {message.name.toUpperCase()} ({message.email})
-          </DialogTitle>
+          <div className="space-y-1">
+            <DialogTitle className="text-lg">
+              MESSAGE DE {message.name.toUpperCase()}
+            </DialogTitle>
+            <div className="text-primary lowercase">
+              {message.email}
+            </div>
+          </div>
           <span className="text-sm text-gray-500">
             {format(new Date(message.created_at), "dd/MM/yyyy HH:mm", {
               locale: fr,
