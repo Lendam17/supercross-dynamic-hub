@@ -21,7 +21,7 @@ export const useAdminAuth = () => {
           .from("admin_users")
           .select("email")
           .eq("email", session.user.email)
-          .maybeSingle();
+          .single();
 
         if (adminError) {
           console.error("Error checking admin status:", adminError);
