@@ -37,11 +37,8 @@ const AdminLogin = () => {
             
             if (adminError) {
               console.error("AdminLogin: Admin check error:", adminError);
-              await supabase.auth.signOut({
-                options: {
-                  redirectTo: `${window.location.origin}/dashboard/login`
-                }
-              });
+              await supabase.auth.signOut();
+              navigate("/dashboard/login");
               return;
             }
 
@@ -50,19 +47,13 @@ const AdminLogin = () => {
               navigate("/dashboard", { replace: true });
             } else {
               console.log("AdminLogin: Not an admin user, signing out");
-              await supabase.auth.signOut({
-                options: {
-                  redirectTo: `${window.location.origin}/dashboard/login`
-                }
-              });
+              await supabase.auth.signOut();
+              navigate("/dashboard/login");
             }
           } catch (error) {
             console.error("AdminLogin: Error during admin check:", error);
-            await supabase.auth.signOut({
-              options: {
-                redirectTo: `${window.location.origin}/dashboard/login`
-              }
-            });
+            await supabase.auth.signOut();
+            navigate("/dashboard/login");
           }
         } else {
           console.log("AdminLogin: No active session");
@@ -115,10 +106,7 @@ const AdminLogin = () => {
       console.log("AdminLogin: Attempting to sign in with email");
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
-        password,
-        options: {
-          redirectTo: `${window.location.origin}/dashboard`
-        }
+        password
       });
 
       console.log("AdminLogin: Sign in result:", { data, error: signInError });
