@@ -14,7 +14,10 @@ const AdminLogin = () => {
 
   useEffect(() => {
     const checkSession = async () => {
+      console.log("AdminLogin: Checking session...");
       const { data: { session } } = await supabase.auth.getSession();
+      console.log("AdminLogin: Current session:", session);
+      
       if (session) {
         const { data: adminUser } = await supabase
           .from("admin_users")
@@ -22,8 +25,13 @@ const AdminLogin = () => {
           .eq("email", session.user.email)
           .single();
 
+        console.log("AdminLogin: Admin user check:", adminUser);
+        
         if (adminUser) {
+          console.log("AdminLogin: Valid admin user, redirecting to dashboard");
           navigate("/dashboard", { replace: true });
+        } else {
+          console.log("AdminLogin: Not an admin user, staying on login page");
         }
       }
     };
@@ -33,16 +41,21 @@ const AdminLogin = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("AdminLogin: Starting login process...");
     setLoading(true);
 
     try {
+      console.log("AdminLogin: Checking admin status for:", email);
       const { data: adminCheck } = await supabase
         .from("admin_users")
         .select("email")
         .eq("email", email)
         .single();
 
+      console.log("AdminLogin: Admin check result:", adminCheck);
+
       if (!adminCheck) {
+        console.log("AdminLogin: Not an admin user, showing error");
         toast({
           title: "Erreur",
           description: "Vous n'êtes pas autorisé à accéder à cette page.",
@@ -52,20 +65,24 @@ const AdminLogin = () => {
         return;
       }
 
-      const { error: signInError } = await supabase.auth.signInWithPassword({
+      console.log("AdminLogin: Attempting to sign in");
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
+      console.log("AdminLogin: Sign in result:", { data, error: signInError });
+
       if (signInError) throw signInError;
 
+      console.log("AdminLogin: Login successful, redirecting to dashboard");
       navigate("/dashboard", { replace: true });
       toast({
         title: "Succès",
         description: "Connexion réussie",
       });
     } catch (error) {
-      console.error("Login error:", error);
+      console.error("AdminLogin: Login error:", error);
       toast({
         title: "Erreur",
         description: error instanceof Error ? error.message : "Une erreur est survenue lors de la connexion.",

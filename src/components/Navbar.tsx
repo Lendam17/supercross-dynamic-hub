@@ -16,8 +16,10 @@ const Navbar = () => {
   };
 
   const handleLogout = async () => {
+    console.log("Navbar: Starting logout process...");
     try {
       await supabase.auth.signOut();
+      console.log("Navbar: Signed out successfully");
       setIsAdmin(false);
       navigate("/dashboard/login", { replace: true });
       toast({
@@ -25,7 +27,7 @@ const Navbar = () => {
         description: "Vous avez été déconnecté avec succès.",
       });
     } catch (error) {
-      console.error("Error logging out:", error);
+      console.error("Navbar: Error logging out:", error);
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de la déconnexion.",
@@ -57,7 +59,9 @@ const Navbar = () => {
     checkAdmin();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("Navbar: Auth state changed:", { event, session });
       if (event === 'SIGNED_OUT') {
+        console.log("Navbar: User signed out, updating admin status");
         setIsAdmin(false);
         return;
       }
