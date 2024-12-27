@@ -10,7 +10,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     const checkAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
-        
         if (session) {
           const { data: adminUser } = await supabase
             .from("admin_users")
@@ -31,30 +30,11 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     };
 
     checkAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session) {
-        const { data: adminUser } = await supabase
-          .from("admin_users")
-          .select("email")
-          .eq("email", session.user.email)
-          .single();
-
-        setIsAuthenticated(!!adminUser);
-      } else {
-        setIsAuthenticated(false);
-      }
-      setLoading(false);
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
   }, []);
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[50vh]">
+      <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
     );

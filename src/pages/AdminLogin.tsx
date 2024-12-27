@@ -27,25 +27,23 @@ const AdminLogin = () => {
         throw new Error("Accès non autorisé");
       }
 
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) throw error;
 
-      if (data.user) {
-        toast({
-          title: "Succès",
-          description: "Connexion réussie",
-        });
-        navigate("/dashboard");
-      }
+      navigate("/dashboard");
+      toast({
+        title: "Succès",
+        description: "Connexion réussie",
+      });
     } catch (error) {
       console.error("Erreur de connexion:", error);
       toast({
         title: "Erreur de connexion",
-        description: error instanceof Error ? error.message : "Email ou mot de passe incorrect",
+        description: "Email ou mot de passe incorrect",
         variant: "destructive",
       });
     } finally {
@@ -54,8 +52,8 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 md:py-12 max-w-md mt-20">
-      <div className="bg-card rounded-lg shadow-lg p-6 md:p-8">
+    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4">
+      <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
         <h1 className="text-2xl md:text-3xl font-bold mb-6 text-center">Administration</h1>
         <form onSubmit={handleLogin} className="space-y-4">
           <div>

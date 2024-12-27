@@ -24,7 +24,6 @@ export const NavMenu = ({ isActive, isAdmin, onLogout }: NavMenuProps) => {
     setIsMenuOpen(false);
   };
 
-  // Prevent body scroll when menu is open
   useEffect(() => {
     if (isMenuOpen) {
       document.body.style.overflow = 'hidden';
@@ -37,15 +36,12 @@ export const NavMenu = ({ isActive, isAdmin, onLogout }: NavMenuProps) => {
   }, [isMenuOpen]);
 
   return (
-    <div className="w-full md:w-auto">
+    <div className="flex items-center">
       {/* Mobile menu button */}
       <div className="md:hidden">
         <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setIsMenuOpen(!isMenuOpen);
-          }}
-          className="flex items-center justify-center p-2 hover:bg-gray-100 rounded-md"
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className="p-2 hover:bg-gray-100 rounded-md"
           aria-label={isMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
         >
           {isMenuOpen ? (
