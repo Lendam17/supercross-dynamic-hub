@@ -29,9 +29,12 @@ const Tickets = () => {
 
       console.log("Tickets: Click recorded successfully");
       
-      // Ouvrir dans un nouvel onglet pour éviter les problèmes de navigation
-      const newWindow = window.open('https://www.ticketmaster.fr', '_blank');
-      if (newWindow) newWindow.focus();
+      // Utiliser setTimeout pour s'assurer que l'état est mis à jour
+      setTimeout(() => {
+        const newWindow = window.open('https://www.ticketmaster.fr', '_blank');
+        if (newWindow) newWindow.focus();
+        setIsProcessing(false);
+      }, 100);
       
     } catch (error) {
       console.error('Tickets: Error tracking ticket click:', error);
@@ -40,7 +43,6 @@ const Tickets = () => {
         description: "Une erreur est survenue. Veuillez réessayer.",
         variant: "destructive",
       });
-    } finally {
       setIsProcessing(false);
     }
   };

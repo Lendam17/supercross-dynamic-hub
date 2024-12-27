@@ -14,6 +14,8 @@ export const useAdminAuth = () => {
         return;
       }
 
+      setLoading(true); // Reset loading state at the start of check
+
       try {
         console.log("useAdminAuth: Checking admin status for:", email);
         const { data: adminUser, error } = await supabase
@@ -32,8 +34,9 @@ export const useAdminAuth = () => {
         }
 
         if (mounted) {
-          console.log("useAdminAuth: Setting authenticated state to:", !!adminUser);
-          setIsAuthenticated(!!adminUser);
+          const isAdmin = !!adminUser;
+          console.log("useAdminAuth: Setting authenticated state to:", isAdmin);
+          setIsAuthenticated(isAdmin);
           setLoading(false);
         }
       } catch (error) {
@@ -69,10 +72,18 @@ export const useAdminAuth = () => {
       }
     };
 
+    // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("useAdminAuth: Auth state changed:", { event, session });
       
       if (!mounted) return;
+
+      if (event === 'SIGNED_OUT') {
+        console.log("useAdminAuth: User signed out, updating admin status");
+        setIsAuthenticated(false);
+        setLoading(false);
+        return;
+      }
 
       if (!session) {
         setIsAuthenticated(false);
@@ -83,8 +94,10 @@ export const useAdminAuth = () => {
       await checkAdminStatus(session.user.email);
     });
 
+    // Initial check
     initialize();
 
+    // Cleanup
     return () => {
       console.log("useAdminAuth: Cleaning up");
       mounted = false;
