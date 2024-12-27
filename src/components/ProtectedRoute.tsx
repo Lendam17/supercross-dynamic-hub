@@ -33,6 +33,12 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("ProtectedRoute: Auth state changed:", { event, session });
+      if (event === 'SIGNED_OUT') {
+        setIsAuthenticated(false);
+        setLoading(false);
+        return;
+      }
+
       if (session) {
         try {
           const { data: adminUser } = await supabase

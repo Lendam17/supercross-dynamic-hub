@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,26 @@ const AdminLogin = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  useEffect(() => {
+    const checkCurrentSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        const { data: adminUser } = await supabase
+          .from("admin_users")
+          .select("email")
+          .eq("email", session.user.email)
+          .single();
+
+        if (adminUser) {
+          console.log("User already authenticated and is admin, redirecting to dashboard");
+          navigate("/dashboard");
+        }
+      }
+    };
+
+    checkCurrentSession();
+  }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
