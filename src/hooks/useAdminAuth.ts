@@ -7,14 +7,18 @@ export const useAdminAuth = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let mounted = true;
+
     const checkAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         
         if (!session?.user?.email) {
           console.log("No active session found");
-          setIsAuthenticated(false);
-          setLoading(false);
+          if (mounted) {
+            setIsAuthenticated(false);
+            setLoading(false);
+          }
           return;
         }
 
@@ -23,22 +27,30 @@ export const useAdminAuth = () => {
           .from("admin_users")
           .select("email")
           .eq("email", session.user.email)
-          .maybeSingle();
+          .single();
 
         if (adminError) {
           console.error("Error checking admin status:", adminError);
-          setError("Erreur lors de la vérification des droits administrateur");
-          setIsAuthenticated(false);
+          if (mounted) {
+            setError("Erreur lors de la vérification des droits administrateur");
+            setIsAuthenticated(false);
+          }
         } else {
-          setIsAuthenticated(!!adminUser);
-          setError(null);
+          if (mounted) {
+            setIsAuthenticated(!!adminUser);
+            setError(null);
+          }
         }
       } catch (err) {
         console.error("Unexpected error:", err);
-        setError("Une erreur inattendue s'est produite");
-        setIsAuthenticated(false);
+        if (mounted) {
+          setError("Une erreur inattendue s'est produite");
+          setIsAuthenticated(false);
+        }
       } finally {
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     };
 
@@ -48,21 +60,26 @@ export const useAdminAuth = () => {
       console.log("Auth state changed:", event, session?.user?.email);
       
       if (event === 'SIGNED_OUT') {
-        setIsAuthenticated(false);
-        setLoading(false);
-        setError(null);
+        if (mounted) {
+          setIsAuthenticated(false);
+          setLoading(false);
+          setError(null);
+        }
         return;
       }
 
       if (session?.user?.email) {
         await checkAuth();
       } else {
-        setIsAuthenticated(false);
-        setLoading(false);
+        if (mounted) {
+          setIsAuthenticated(false);
+          setLoading(false);
+        }
       }
     });
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
   }, []);

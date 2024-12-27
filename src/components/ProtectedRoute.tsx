@@ -25,6 +25,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
+  console.log("ProtectedRoute: Auth state", { isAuthenticated, loading, error });
+
   if (!isAuthenticated) {
     console.log("Not authenticated, redirecting to login");
     return <Navigate to="/dashboard/login" replace />;
