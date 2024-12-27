@@ -9,25 +9,35 @@ const Tickets = () => {
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleTicketClick = async () => {
-    if (isProcessing) return;
+    if (isProcessing) {
+      console.log("Tickets: Already processing click, skipping");
+      return;
+    }
     
+    console.log("Tickets: Starting ticket click process");
     setIsProcessing(true);
     try {
+      console.log("Tickets: Inserting click record");
       const { error } = await supabase
         .from('ticket_button_clicks')
         .insert([{ clicked_at: new Date().toISOString() }]);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Tickets: Error inserting click:", error);
+        throw error;
+      }
 
+      console.log("Tickets: Click recorded successfully, opening Ticketmaster");
       window.open('https://www.ticketmaster.fr', '_blank');
     } catch (error) {
-      console.error('Error tracking ticket click:', error);
+      console.error('Tickets: Error tracking ticket click:', error);
       toast({
         title: "Erreur",
         description: "Une erreur est survenue. Veuillez réessayer.",
         variant: "destructive",
       });
     } finally {
+      console.log("Tickets: Resetting processing state");
       setIsProcessing(false);
     }
   };

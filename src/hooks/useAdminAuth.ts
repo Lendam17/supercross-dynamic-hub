@@ -9,7 +9,10 @@ export const useAdminAuth = () => {
     let mounted = true;
 
     const checkAdminStatus = async (email: string | undefined) => {
+      console.log("useAdminAuth: Checking admin status for email:", email);
+      
       if (!email) {
+        console.log("useAdminAuth: No email provided, setting not authenticated");
         if (mounted) {
           setIsAuthenticated(false);
           setLoading(false);
@@ -18,11 +21,12 @@ export const useAdminAuth = () => {
       }
 
       try {
+        console.log("useAdminAuth: Querying admin_users table");
         const { data: adminUser, error } = await supabase
           .from("admin_users")
           .select("email")
           .eq("email", email)
-          .single();
+          .maybeSingle();
 
         if (error) {
           console.error("useAdminAuth: Error checking admin status:", error);
@@ -33,6 +37,7 @@ export const useAdminAuth = () => {
           return;
         }
 
+        console.log("useAdminAuth: Admin check result:", { adminUser });
         if (mounted) {
           setIsAuthenticated(!!adminUser);
           setLoading(false);
@@ -47,6 +52,7 @@ export const useAdminAuth = () => {
     };
 
     const initializeAuth = async () => {
+      console.log("useAdminAuth: Initializing auth check");
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         
@@ -59,7 +65,9 @@ export const useAdminAuth = () => {
           return;
         }
 
+        console.log("useAdminAuth: Initial session check:", { session });
         if (!session) {
+          console.log("useAdminAuth: No session found");
           if (mounted) {
             setIsAuthenticated(false);
             setLoading(false);
@@ -82,9 +90,13 @@ export const useAdminAuth = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("useAdminAuth: Auth state changed:", { event, session });
       
-      if (!mounted) return;
+      if (!mounted) {
+        console.log("useAdminAuth: Component unmounted, skipping update");
+        return;
+      }
 
       if (event === 'SIGNED_OUT' || !session) {
+        console.log("useAdminAuth: User signed out or no session");
         setIsAuthenticated(false);
         setLoading(false);
         return;
@@ -94,6 +106,7 @@ export const useAdminAuth = () => {
     });
 
     return () => {
+      console.log("useAdminAuth: Cleaning up effect");
       mounted = false;
       subscription.unsubscribe();
     };
