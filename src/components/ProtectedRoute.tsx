@@ -12,15 +12,25 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     const checkAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
-        
+        console.log("ProtectedRoute: Initial session check:", session);
+
         if (!mounted) return;
 
         if (session) {
-          const { data: adminUser } = await supabase
+          const { data: adminUser, error } = await supabase
             .from("admin_users")
             .select("email")
             .eq("email", session.user.email)
-            .single();
+            .maybeSingle();
+
+          if (error) {
+            console.error("Error checking admin status:", error);
+            if (mounted) {
+              setIsAuthenticated(false);
+              setLoading(false);
+            }
+            return;
+          }
 
           if (mounted) {
             setIsAuthenticated(!!adminUser);
@@ -49,18 +59,29 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
       if (!mounted) return;
 
       if (event === 'SIGNED_OUT') {
-        setIsAuthenticated(false);
-        setLoading(false);
+        if (mounted) {
+          setIsAuthenticated(false);
+          setLoading(false);
+        }
         return;
       }
 
       if (session) {
         try {
-          const { data: adminUser } = await supabase
+          const { data: adminUser, error } = await supabase
             .from("admin_users")
             .select("email")
             .eq("email", session.user.email)
-            .single();
+            .maybeSingle();
+
+          if (error) {
+            console.error("Error checking admin status:", error);
+            if (mounted) {
+              setIsAuthenticated(false);
+              setLoading(false);
+            }
+            return;
+          }
 
           if (mounted) {
             setIsAuthenticated(!!adminUser);
