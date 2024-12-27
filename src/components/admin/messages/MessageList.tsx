@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { format, isToday } from "date-fns";
 import { fr } from "date-fns/locale";
 import {
   Table,
@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Message } from "./types";
+import { cn } from "@/lib/utils";
 
 interface MessageListProps {
   messages: Message[];
@@ -26,9 +27,16 @@ export function MessageList({
   onSelectAll,
   onMessageClick,
 }: MessageListProps) {
+  const formatMessageDate = (date: string) => {
+    const messageDate = new Date(date);
+    if (isToday(messageDate)) {
+      return format(messageDate, "HH:mm", { locale: fr });
+    }
+    return format(messageDate, "dd MMM", { locale: fr });
+  };
+
   return (
     <Table>
-      {/* En-tête du tableau */}
       <TableHeader>
         <TableRow>
           <TableHead className="w-[50px]">
@@ -38,23 +46,22 @@ export function MessageList({
               aria-label="Sélectionner tous les messages"
             />
           </TableHead>
-          <TableHead>Date</TableHead>
-          <TableHead>Nom</TableHead>
-          <TableHead>Email</TableHead>
+          <TableHead className="w-[300px]">De</TableHead>
           <TableHead>Sujet</TableHead>
-          <TableHead>Message</TableHead>
+          <TableHead className="w-[100px] text-right">Date</TableHead>
         </TableRow>
       </TableHeader>
       
-      {/* Corps du tableau */}
       <TableBody>
         {messages?.map((message) => (
           <TableRow 
             key={message.id}
-            className="cursor-pointer hover:bg-gray-50"
+            className={cn(
+              "cursor-pointer hover:bg-gray-50",
+              !message.is_read && "font-medium bg-gray-50"
+            )}
             onClick={() => onMessageClick(message)}
           >
-            {/* Case à cocher pour la sélection */}
             <TableCell onClick={(e) => e.stopPropagation()}>
               <Checkbox
                 checked={selectedMessages.includes(message.id)}
@@ -62,18 +69,17 @@ export function MessageList({
                 aria-label={`Sélectionner le message de ${message.name}`}
               />
             </TableCell>
-            
-            {/* Informations du message */}
-            <TableCell className="whitespace-nowrap">
-              {format(new Date(message.created_at), "dd/MM/yyyy HH:mm", {
-                locale: fr,
-              })}
+            <TableCell className="font-medium">
+              {message.name}
             </TableCell>
-            <TableCell>{message.name}</TableCell>
-            <TableCell>{message.email}</TableCell>
-            <TableCell>{message.subject}</TableCell>
-            <TableCell className="max-w-xs truncate">
-              {message.message}
+            <TableCell className={cn(
+              "text-gray-600",
+              !message.is_read && "text-gray-900"
+            )}>
+              {message.subject}
+            </TableCell>
+            <TableCell className="text-right text-gray-600">
+              {formatMessageDate(message.created_at)}
             </TableCell>
           </TableRow>
         ))}

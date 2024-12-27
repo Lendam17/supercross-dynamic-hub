@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Message } from "./types";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -30,17 +30,34 @@ export function MessageDialog({
   onReply,
   isReplying,
 }: MessageDialogProps) {
-  // État local pour le contenu de la réponse
   const [replyContent, setReplyContent] = useState("");
   const { toast } = useToast();
 
-  // Si aucun message n'est sélectionné, ne rien afficher
+  useEffect(() => {
+    const markAsRead = async () => {
+      if (message && !message.is_read) {
+        try {
+          const { error } = await supabase
+            .from("contact_messages")
+            .update({ is_read: true })
+            .eq("id", message.id);
+
+          if (error) throw error;
+        } catch (error) {
+          console.error("Error marking message as read:", error);
+        }
+      }
+    };
+
+    if (isOpen && message) {
+      markAsRead();
+    }
+  }, [isOpen, message]);
+
   if (!message) return null;
 
-  // Gestion de l'envoi de la réponse
   const handleReply = async () => {
     try {
-      // Envoi de l'email via la fonction Edge de Supabase
       const { data, error } = await supabase.functions.invoke("send-contact-email", {
         body: {
           to: [message.email],
@@ -52,7 +69,6 @@ export function MessageDialog({
 
       if (error) throw error;
 
-      // Mise à jour de l'état après l'envoi réussi
       await onReply(replyContent);
       setReplyContent("");
       toast({
@@ -79,7 +95,6 @@ export function MessageDialog({
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
-          {/* En-tête du message */}
           <div className="space-y-2">
             <div className="flex justify-between text-sm text-gray-500">
               <span>De: {message.email}</span>
@@ -92,12 +107,10 @@ export function MessageDialog({
             <h3 className="text-lg font-medium">Sujet: {message.subject}</h3>
           </div>
           
-          {/* Corps du message original */}
           <div className="bg-gray-50 p-4 rounded-lg">
             <p className="text-gray-700 whitespace-pre-wrap">{message.message}</p>
           </div>
           
-          {/* Zone de réponse */}
           <div className="space-y-2">
             <label
               htmlFor="reply"
@@ -115,7 +128,6 @@ export function MessageDialog({
             />
           </div>
           
-          {/* Boutons d'action */}
           <DialogFooter>
             <Button
               variant="outline"
