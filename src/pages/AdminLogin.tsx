@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -12,12 +12,29 @@ const AdminLogin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        const { data: adminUser } = await supabase
+          .from("admin_users")
+          .select("email")
+          .eq("email", session.user.email)
+          .single();
+
+        if (adminUser) {
+          navigate("/dashboard");
+        }
+      }
+    };
+    checkSession();
+  }, [navigate]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      // 1. D'abord, on vérifie si l'email est autorisé
       const { data: adminUser } = await supabase
         .from("admin_users")
         .select("email")
@@ -28,13 +45,12 @@ const AdminLogin = () => {
         throw new Error("Accès non autorisé");
       }
 
-      // 2. Tentative de connexion
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (signInError) throw signInError;
+      if (error) throw error;
 
       if (data.user) {
         toast({
@@ -56,7 +72,7 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 md:py-12 max-w-md">
+    <div className="container mx-auto px-4 py-8 md:py-12 max-w-md mt-20">
       <div className="bg-card rounded-lg shadow-lg p-6 md:p-8">
         <h1 className="text-2xl md:text-3xl font-bold mb-6 text-center">Administration</h1>
         <form onSubmit={handleLogin} className="space-y-4">
