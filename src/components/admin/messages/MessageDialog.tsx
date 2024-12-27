@@ -93,7 +93,7 @@ export function MessageDialog({
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader className="flex flex-row justify-between items-start border-b pb-4">
           <DialogTitle className="text-lg">
-            MESSAGE DE {message.name.toUpperCase()}
+            MESSAGE DE {message.name.toUpperCase()} ({message.email})
           </DialogTitle>
           <span className="text-sm text-gray-500">
             {format(new Date(message.created_at), "dd/MM/yyyy HH:mm", {
@@ -104,9 +104,6 @@ export function MessageDialog({
 
         <div className="space-y-4 pt-2">
           <div className="space-y-2">
-            <div className="text-sm text-gray-600">
-              De: {message.email}
-            </div>
             <div className="font-medium">
               SUJET: {message.subject.toUpperCase()}
             </div>
