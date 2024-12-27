@@ -88,13 +88,11 @@ const Navbar = () => {
     <nav className="fixed w-full bg-white shadow-sm z-50">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
           <div className="text-gray-900 font-['Oswald'] font-bold text-xl tracking-wider">
             SX TOUR
             <span className="text-primary ml-2">DOUAI</span>
           </div>
 
-          {/* Navigation */}
           <div className="flex items-center">
             <NavMenu isActive={isActive} isAdmin={isAdmin} onLogout={handleLogout} />
             {isAdmin && (

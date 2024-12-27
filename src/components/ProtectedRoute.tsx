@@ -18,13 +18,20 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
             .eq("email", session.user.email)
             .single();
 
-          setIsAuthenticated(!!adminUser);
+          if (adminUser) {
+            setIsAuthenticated(true);
+          } else {
+            setIsAuthenticated(false);
+            navigate("/dashboard/login", { replace: true });
+          }
         } else {
           setIsAuthenticated(false);
+          navigate("/dashboard/login", { replace: true });
         }
       } catch (error) {
         console.error("Error checking authentication:", error);
         setIsAuthenticated(false);
+        navigate("/dashboard/login", { replace: true });
       } finally {
         setLoading(false);
       }
@@ -35,7 +42,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_OUT') {
         setIsAuthenticated(false);
-        navigate('/dashboard/login');
+        navigate("/dashboard/login", { replace: true });
         return;
       }
 
@@ -47,13 +54,20 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
             .eq("email", session.user.email)
             .single();
 
-          setIsAuthenticated(!!adminUser);
+          if (adminUser) {
+            setIsAuthenticated(true);
+          } else {
+            setIsAuthenticated(false);
+            navigate("/dashboard/login", { replace: true });
+          }
         } catch (error) {
           console.error("Error checking authentication:", error);
           setIsAuthenticated(false);
+          navigate("/dashboard/login", { replace: true });
         }
       } else {
         setIsAuthenticated(false);
+        navigate("/dashboard/login", { replace: true });
       }
       setLoading(false);
     });

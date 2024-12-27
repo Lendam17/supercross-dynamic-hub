@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -23,7 +23,7 @@ const AdminLogin = () => {
           .single();
 
         if (adminUser) {
-          navigate("/dashboard");
+          navigate("/dashboard", { replace: true });
         }
       }
     };
@@ -36,20 +36,13 @@ const AdminLogin = () => {
     setLoading(true);
 
     try {
-      console.log("Checking admin status for:", email);
-      const { data: adminCheck, error: adminError } = await supabase
+      const { data: adminCheck } = await supabase
         .from("admin_users")
         .select("email")
         .eq("email", email)
         .single();
 
-      if (adminError) {
-        console.error("Error checking admin status:", adminError);
-        throw new Error("Erreur lors de la vérification des droits administrateur");
-      }
-
       if (!adminCheck) {
-        console.error("Not an admin user");
         toast({
           title: "Erreur",
           description: "Vous n'êtes pas autorisé à accéder à cette page.",
@@ -59,25 +52,20 @@ const AdminLogin = () => {
         return;
       }
 
-      console.log("Admin check passed, attempting login");
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (signInError) {
-        console.error("Login error:", signInError);
-        throw signInError;
-      }
+      if (signInError) throw signInError;
 
-      console.log("Login successful");
-      navigate("/dashboard");
+      navigate("/dashboard", { replace: true });
       toast({
         title: "Succès",
         description: "Connexion réussie",
       });
     } catch (error) {
-      console.error("Full error object:", error);
+      console.error("Login error:", error);
       toast({
         title: "Erreur",
         description: error instanceof Error ? error.message : "Une erreur est survenue lors de la connexion.",
