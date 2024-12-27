@@ -17,7 +17,7 @@ const AdminLogin = () => {
       console.log("AdminLogin: Checking session...");
       try {
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        console.log("AdminLogin: Session data:", session);
+        console.log("AdminLogin: Session check result:", { session, error: sessionError });
         
         if (sessionError) {
           console.error("AdminLogin: Session error:", sessionError);
@@ -25,7 +25,7 @@ const AdminLogin = () => {
         }
 
         if (session) {
-          console.log("AdminLogin: Found session, user email:", session.user.email);
+          console.log("AdminLogin: Found session, checking admin status for:", session.user.email);
           const { data: adminUser, error: adminError } = await supabase
             .from("admin_users")
             .select("email")
@@ -35,7 +35,7 @@ const AdminLogin = () => {
           console.log("AdminLogin: Admin check result:", { adminUser, adminError });
 
           if (adminUser) {
-            console.log("AdminLogin: Valid admin user, redirecting");
+            console.log("AdminLogin: Valid admin user, redirecting to dashboard");
             navigate("/dashboard");
           } else {
             console.log("AdminLogin: Not an admin user, signing out");
@@ -43,7 +43,7 @@ const AdminLogin = () => {
           }
         }
       } catch (error) {
-        console.error("AdminLogin: Unexpected error:", error);
+        console.error("AdminLogin: Unexpected error during session check:", error);
       }
     };
 
@@ -56,7 +56,8 @@ const AdminLogin = () => {
     setLoading(true);
 
     try {
-      console.log("AdminLogin: Checking admin status for email:", email);
+      // 1. Vérifier d'abord si l'email est dans la table admin_users
+      console.log("AdminLogin: Checking if email is in admin_users:", email);
       const { data: adminCheck, error: adminCheckError } = await supabase
         .from("admin_users")
         .select("email")
@@ -66,7 +67,7 @@ const AdminLogin = () => {
       console.log("AdminLogin: Admin check result:", { adminCheck, adminCheckError });
 
       if (!adminCheck) {
-        console.log("AdminLogin: Not an admin user");
+        console.log("AdminLogin: Email not found in admin_users");
         toast({
           title: "Erreur",
           description: "Vous n'êtes pas autorisé à accéder à cette page.",
@@ -76,29 +77,40 @@ const AdminLogin = () => {
         return;
       }
 
-      console.log("AdminLogin: Starting Supabase auth...");
+      // 2. Si l'email est valide, tenter la connexion
+      console.log("AdminLogin: Email is valid, attempting login...");
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      console.log("AdminLogin: Auth result:", { data, error: signInError });
+      console.log("AdminLogin: Sign in result:", { data, error: signInError });
 
       if (signInError) {
         throw signInError;
       }
 
-      console.log("AdminLogin: Login successful");
+      // 3. Si la connexion réussit
+      console.log("AdminLogin: Login successful, waiting for session update");
       toast({
         title: "Succès",
         description: "Connexion réussie",
       });
+
+      // 4. Attendre un peu que la session soit mise à jour
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Petit délai pour laisser le temps à Supabase de mettre à jour la session
-      setTimeout(() => {
-        console.log("AdminLogin: Redirecting to dashboard");
+      // 5. Vérifier que la session est bien mise à jour
+      const { data: { session } } = await supabase.auth.getSession();
+      console.log("AdminLogin: Final session check:", session);
+
+      if (session) {
+        console.log("AdminLogin: Session confirmed, redirecting to dashboard");
         navigate("/dashboard");
-      }, 500);
+      } else {
+        console.log("AdminLogin: No session found after login, something went wrong");
+        throw new Error("No session found after login");
+      }
 
     } catch (error) {
       console.error("AdminLogin: Login error:", error);
