@@ -15,32 +15,48 @@ const AdminLogin = () => {
   useEffect(() => {
     const checkSession = async () => {
       console.log("AdminLogin: Checking session...");
-      const { data: { session } } = await supabase.auth.getSession();
-      console.log("AdminLogin: Current session:", session);
-      
-      if (session) {
-        try {
-          console.log("AdminLogin: Session exists, checking admin status");
-          const { data: adminUser, error: adminError } = await supabase
-            .from("admin_users")
-            .select("email")
-            .eq("email", session.user.email)
-            .single();
+      try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        console.log("AdminLogin: Session check result:", { session, error: sessionError });
+        
+        if (sessionError) {
+          console.error("AdminLogin: Session check error:", sessionError);
+          return;
+        }
 
-          console.log("AdminLogin: Admin check result:", { adminUser, adminError });
-          
-          if (adminUser) {
-            console.log("AdminLogin: Valid admin user, redirecting to dashboard");
-            navigate("/dashboard", { replace: true });
-          } else {
-            console.log("AdminLogin: Not an admin user, staying on login page");
-            // Si l'utilisateur est connecté mais n'est pas admin, on le déconnecte
+        if (session) {
+          console.log("AdminLogin: Session exists, checking admin status for email:", session.user.email);
+          try {
+            const { data: adminUser, error: adminError } = await supabase
+              .from("admin_users")
+              .select("email")
+              .eq("email", session.user.email)
+              .single();
+
+            console.log("AdminLogin: Admin check result:", { adminUser, adminError });
+            
+            if (adminError) {
+              console.error("AdminLogin: Admin check error:", adminError);
+              await supabase.auth.signOut();
+              return;
+            }
+
+            if (adminUser) {
+              console.log("AdminLogin: Valid admin user, redirecting to dashboard");
+              navigate("/dashboard", { replace: true });
+            } else {
+              console.log("AdminLogin: Not an admin user, signing out");
+              await supabase.auth.signOut();
+            }
+          } catch (error) {
+            console.error("AdminLogin: Error during admin check:", error);
             await supabase.auth.signOut();
           }
-        } catch (error) {
-          console.error("AdminLogin: Error checking admin status:", error);
-          await supabase.auth.signOut();
+        } else {
+          console.log("AdminLogin: No active session");
         }
+      } catch (error) {
+        console.error("AdminLogin: Unexpected error during session check:", error);
       }
     };
 
@@ -62,8 +78,19 @@ const AdminLogin = () => {
 
       console.log("AdminLogin: Admin check result:", { adminCheck, adminError });
 
-      if (adminError || !adminCheck) {
-        console.log("AdminLogin: Not an admin user or error occurred");
+      if (adminError) {
+        console.error("AdminLogin: Admin check error:", adminError);
+        toast({
+          title: "Erreur",
+          description: "Une erreur est survenue lors de la vérification des droits d'administrateur.",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
+      if (!adminCheck) {
+        console.log("AdminLogin: Not an admin user");
         toast({
           title: "Erreur",
           description: "Vous n'êtes pas autorisé à accéder à cette page.",
@@ -73,7 +100,7 @@ const AdminLogin = () => {
         return;
       }
 
-      console.log("AdminLogin: Attempting to sign in");
+      console.log("AdminLogin: Attempting to sign in with email");
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -82,6 +109,7 @@ const AdminLogin = () => {
       console.log("AdminLogin: Sign in result:", { data, error: signInError });
 
       if (signInError) {
+        console.error("AdminLogin: Sign in error:", signInError);
         throw signInError;
       }
 
