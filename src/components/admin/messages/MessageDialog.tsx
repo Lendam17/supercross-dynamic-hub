@@ -45,7 +45,6 @@ export function MessageDialog({
 
           if (error) throw error;
 
-          // Invalidate the messages query to refresh the list
           queryClient.invalidateQueries({ queryKey: ["contact_messages"] });
         } catch (error) {
           console.error("Error marking message as read:", error);
@@ -92,20 +91,25 @@ export function MessageDialog({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px]">
-        <DialogHeader>
-          <DialogTitle>Message de {message.name}</DialogTitle>
+        <DialogHeader className="flex flex-row justify-between items-start border-b pb-4">
+          <DialogTitle className="text-lg">
+            MESSAGE DE {message.name.toUpperCase()}
+          </DialogTitle>
+          <span className="text-sm text-gray-500">
+            {format(new Date(message.created_at), "dd/MM/yyyy HH:mm", {
+              locale: fr,
+            })}
+          </span>
         </DialogHeader>
-        <div className="space-y-4">
+
+        <div className="space-y-4 pt-2">
           <div className="space-y-2">
-            <div className="flex justify-between text-sm text-gray-500">
-              <span>De: {message.email}</span>
-              <span>
-                {format(new Date(message.created_at), "dd/MM/yyyy HH:mm", {
-                  locale: fr,
-                })}
-              </span>
+            <div className="text-sm text-gray-600">
+              De: {message.email}
             </div>
-            <h3 className="text-lg font-medium">Sujet: {message.subject}</h3>
+            <div className="font-medium">
+              SUJET: {message.subject.toUpperCase()}
+            </div>
           </div>
           
           <div className="bg-gray-50 p-4 rounded-lg">
@@ -113,23 +117,16 @@ export function MessageDialog({
           </div>
           
           <div className="space-y-2">
-            <label
-              htmlFor="reply"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Votre réponse
-            </label>
             <Textarea
-              id="reply"
               value={replyContent}
               onChange={(e) => setReplyContent(e.target.value)}
               rows={6}
               className="w-full"
-              placeholder="Écrivez votre réponse ici..."
+              placeholder="Votre réponse..."
             />
           </div>
           
-          <DialogFooter>
+          <DialogFooter className="flex justify-end gap-2">
             <Button
               variant="outline"
               onClick={() => {
