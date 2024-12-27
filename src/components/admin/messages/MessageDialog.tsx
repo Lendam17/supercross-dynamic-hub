@@ -4,7 +4,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-  DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -14,6 +13,7 @@ import { Message } from "./types";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface MessageDialogProps {
   message: Message | null;
@@ -32,6 +32,7 @@ export function MessageDialog({
 }: MessageDialogProps) {
   const [replyContent, setReplyContent] = useState("");
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const markAsRead = async () => {
@@ -43,6 +44,9 @@ export function MessageDialog({
             .eq("id", message.id);
 
           if (error) throw error;
+
+          // Invalidate the messages query to refresh the list
+          queryClient.invalidateQueries({ queryKey: ["contact_messages"] });
         } catch (error) {
           console.error("Error marking message as read:", error);
         }
@@ -52,7 +56,7 @@ export function MessageDialog({
     if (isOpen && message) {
       markAsRead();
     }
-  }, [isOpen, message]);
+  }, [isOpen, message, queryClient]);
 
   if (!message) return null;
 
@@ -90,9 +94,6 @@ export function MessageDialog({
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Message de {message.name}</DialogTitle>
-          <DialogDescription>
-            Répondez directement à ce message. La réponse sera envoyée à {message.email}
-          </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-2">
