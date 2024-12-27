@@ -1,30 +1,22 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
 
 export const useAdminAuth = () => {
-  const [loading, setLoading] = useState(true);
+  const session = useSession();
+  const supabase = useSupabaseClient();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let mounted = true;
-
-    const checkAuth = async () => {
+    const checkAdminStatus = async () => {
       try {
-        console.log("useAdminAuth: Checking auth status...");
-        const { data: { session } } = await supabase.auth.getSession();
-        
         if (!session?.user?.email) {
-          console.log("useAdminAuth: No active session found");
-          if (mounted) {
-            setIsAuthenticated(false);
-            setLoading(false);
-            setError(null);
-          }
+          setIsAuthenticated(false);
+          setLoading(false);
           return;
         }
 
-        console.log("useAdminAuth: Session found, checking admin status for:", session.user.email);
         const { data: adminUser, error: adminError } = await supabase
           .from("admin_users")
           .select("email")
@@ -32,69 +24,24 @@ export const useAdminAuth = () => {
           .maybeSingle();
 
         if (adminError) {
-          console.error("useAdminAuth: Error checking admin status:", adminError);
-          if (mounted) {
-            setError("Erreur lors de la vérification des droits administrateur");
-            setIsAuthenticated(false);
-            setLoading(false);
-          }
-          return;
-        }
-
-        if (mounted) {
-          const isAdmin = !!adminUser;
-          console.log("useAdminAuth: Admin status check result:", { isAdmin });
-          setIsAuthenticated(isAdmin);
+          console.error("Error checking admin status:", adminError);
+          setError("Erreur lors de la vérification des droits administrateur");
+          setIsAuthenticated(false);
+        } else {
+          setIsAuthenticated(!!adminUser);
           setError(null);
-          setLoading(false);
         }
       } catch (err) {
-        console.error("useAdminAuth: Unexpected error:", err);
-        if (mounted) {
-          setError("Une erreur inattendue s'est produite");
-          setIsAuthenticated(false);
-          setLoading(false);
-        }
-      }
-    };
-
-    // Initial check
-    checkAuth();
-
-    // Handle auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("useAdminAuth: Auth state changed:", event, session?.user?.email);
-      
-      if (!mounted) return;
-
-      if (event === 'SIGNED_OUT') {
+        console.error("Unexpected error:", err);
+        setError("Une erreur inattendue s'est produite");
         setIsAuthenticated(false);
+      } finally {
         setLoading(false);
-        setError(null);
-        return;
-      }
-
-      checkAuth();
-    });
-
-    // Handle visibility change
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        checkAuth();
       }
     };
 
-    // Add visibility change listener
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    // Cleanup function
-    return () => {
-      console.log("useAdminAuth: Cleanup");
-      mounted = false;
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      subscription.unsubscribe();
-    };
-  }, []);
+    checkAdminStatus();
+  }, [session, supabase]);
 
   return { isAuthenticated, loading, error };
 };
