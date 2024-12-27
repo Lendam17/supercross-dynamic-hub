@@ -16,6 +16,7 @@ const Tickets = () => {
     
     console.log("Tickets: Starting ticket click process");
     setIsProcessing(true);
+    
     try {
       console.log("Tickets: Inserting click record");
       const { error } = await supabase
@@ -28,7 +29,12 @@ const Tickets = () => {
       }
 
       console.log("Tickets: Click recorded successfully, opening Ticketmaster");
-      window.open('https://www.ticketmaster.fr', '_blank');
+      // Utiliser setTimeout pour s'assurer que l'état est mis à jour avant d'ouvrir la nouvelle fenêtre
+      setTimeout(() => {
+        window.open('https://www.ticketmaster.fr', '_blank');
+        setIsProcessing(false);
+      }, 100);
+      
     } catch (error) {
       console.error('Tickets: Error tracking ticket click:', error);
       toast({
@@ -36,8 +42,6 @@ const Tickets = () => {
         description: "Une erreur est survenue. Veuillez réessayer.",
         variant: "destructive",
       });
-    } finally {
-      console.log("Tickets: Resetting processing state");
       setIsProcessing(false);
     }
   };

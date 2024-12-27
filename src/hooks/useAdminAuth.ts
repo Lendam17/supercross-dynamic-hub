@@ -52,7 +52,11 @@ export const useAdminAuth = () => {
     };
 
     const initializeAuth = async () => {
+      if (!mounted) return;
+      
       console.log("useAdminAuth: Initializing auth check");
+      setLoading(true);
+      
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         
@@ -88,12 +92,13 @@ export const useAdminAuth = () => {
     initializeAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("useAdminAuth: Auth state changed:", { event, session });
-      
       if (!mounted) {
         console.log("useAdminAuth: Component unmounted, skipping update");
         return;
       }
+
+      console.log("useAdminAuth: Auth state changed:", { event, session });
+      setLoading(true);
 
       if (event === 'SIGNED_OUT' || !session) {
         console.log("useAdminAuth: User signed out or no session");
