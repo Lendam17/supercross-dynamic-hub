@@ -18,11 +18,20 @@ export const useAdminAuth = () => {
       }
 
       try {
-        const { data: adminUser } = await supabase
+        const { data: adminUser, error } = await supabase
           .from("admin_users")
           .select("email")
           .eq("email", email)
           .maybeSingle();
+
+        if (error) {
+          console.error("Error checking admin status:", error);
+          if (mounted) {
+            setIsAuthenticated(false);
+            setLoading(false);
+          }
+          return;
+        }
 
         if (mounted) {
           setIsAuthenticated(!!adminUser);
@@ -37,20 +46,30 @@ export const useAdminAuth = () => {
       }
     };
 
-    // Initial session check
     const initializeAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (mounted) {
-          if (!session) {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error("Error getting session:", error);
+          if (mounted) {
             setIsAuthenticated(false);
             setLoading(false);
-            return;
           }
-          await checkAdminStatus(session.user.email);
+          return;
         }
+
+        if (!session) {
+          if (mounted) {
+            setIsAuthenticated(false);
+            setLoading(false);
+          }
+          return;
+        }
+
+        await checkAdminStatus(session.user.email);
       } catch (error) {
-        console.error("Error getting session:", error);
+        console.error("Error in initializeAuth:", error);
         if (mounted) {
           setIsAuthenticated(false);
           setLoading(false);
@@ -63,6 +82,8 @@ export const useAdminAuth = () => {
 
     // Subscribe to auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("useAdminAuth: Auth state changed:", { event, session });
+      
       if (!mounted) return;
 
       if (event === 'SIGNED_OUT' || !session) {
@@ -71,6 +92,8 @@ export const useAdminAuth = () => {
         return;
       }
 
+      // Set loading to true when checking admin status
+      setLoading(true);
       await checkAdminStatus(session.user.email);
     });
 
