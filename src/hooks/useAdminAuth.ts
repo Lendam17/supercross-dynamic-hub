@@ -10,11 +10,9 @@ export const useAdminAuth = () => {
 
     const checkAdminStatus = async (email: string | undefined) => {
       if (!mounted || !email) {
-        console.log("useAdminAuth: Skipping admin check - component unmounted or no email");
+        console.log("useAdminAuth: Invalid state for admin check");
         return;
       }
-
-      setLoading(true); // Reset loading state at the start of check
 
       try {
         console.log("useAdminAuth: Checking admin status for:", email);
@@ -24,47 +22,41 @@ export const useAdminAuth = () => {
           .eq("email", email)
           .maybeSingle();
 
-        if (error) {
-          console.error("useAdminAuth: Error checking admin status:", error);
-          if (mounted) {
-            setIsAuthenticated(false);
-            setLoading(false);
-          }
-          return;
-        }
+        if (error) throw error;
 
         if (mounted) {
           const isAdmin = !!adminUser;
-          console.log("useAdminAuth: Setting authenticated state to:", isAdmin);
+          console.log("useAdminAuth: Admin status result:", isAdmin);
           setIsAuthenticated(isAdmin);
-          setLoading(false);
         }
       } catch (error) {
-        console.error("useAdminAuth: Error in checkAdminStatus:", error);
-        if (mounted) {
-          setIsAuthenticated(false);
-          setLoading(false);
-        }
+        console.error("useAdminAuth: Error checking admin status:", error);
+        if (mounted) setIsAuthenticated(false);
+      } finally {
+        if (mounted) setLoading(false);
       }
     };
 
-    const initialize = async () => {
-      try {
-        console.log("useAdminAuth: Initializing");
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        if (!session) {
-          console.log("useAdminAuth: No session found");
-          if (mounted) {
-            setIsAuthenticated(false);
-            setLoading(false);
-          }
-          return;
-        }
+    const handleAuthChange = async (session: any) => {
+      if (!mounted) return;
 
-        await checkAdminStatus(session.user.email);
+      if (!session) {
+        console.log("useAdminAuth: No session, setting not authenticated");
+        setIsAuthenticated(false);
+        setLoading(false);
+        return;
+      }
+
+      await checkAdminStatus(session.user.email);
+    };
+
+    // Initial session check
+    const initializeAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        await handleAuthChange(session);
       } catch (error) {
-        console.error("useAdminAuth: Error in initialize:", error);
+        console.error("useAdminAuth: Error in initialization:", error);
         if (mounted) {
           setIsAuthenticated(false);
           setLoading(false);
@@ -74,30 +66,22 @@ export const useAdminAuth = () => {
 
     // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("useAdminAuth: Auth state changed:", { event, session });
+      console.log("useAdminAuth: Auth state changed:", event);
       
-      if (!mounted) return;
-
       if (event === 'SIGNED_OUT') {
-        console.log("useAdminAuth: User signed out, updating admin status");
-        setIsAuthenticated(false);
-        setLoading(false);
+        if (mounted) {
+          console.log("useAdminAuth: User signed out");
+          setIsAuthenticated(false);
+          setLoading(false);
+        }
         return;
       }
 
-      if (!session) {
-        setIsAuthenticated(false);
-        setLoading(false);
-        return;
-      }
-
-      await checkAdminStatus(session.user.email);
+      await handleAuthChange(session);
     });
 
-    // Initial check
-    initialize();
+    initializeAuth();
 
-    // Cleanup
     return () => {
       console.log("useAdminAuth: Cleaning up");
       mounted = false;

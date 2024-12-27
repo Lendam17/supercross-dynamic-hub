@@ -22,19 +22,10 @@ const Tickets = () => {
         .from('ticket_button_clicks')
         .insert([{ clicked_at: new Date().toISOString() }]);
 
-      if (error) {
-        console.error("Tickets: Error inserting click:", error);
-        throw error;
-      }
+      if (error) throw error;
 
       console.log("Tickets: Click recorded successfully");
-      
-      // Utiliser setTimeout pour s'assurer que l'état est mis à jour
-      setTimeout(() => {
-        const newWindow = window.open('https://www.ticketmaster.fr', '_blank');
-        if (newWindow) newWindow.focus();
-        setIsProcessing(false);
-      }, 100);
+      window.open('https://www.ticketmaster.fr', '_blank');
       
     } catch (error) {
       console.error('Tickets: Error tracking ticket click:', error);
@@ -43,6 +34,7 @@ const Tickets = () => {
         description: "Une erreur est survenue. Veuillez réessayer.",
         variant: "destructive",
       });
+    } finally {
       setIsProcessing(false);
     }
   };
