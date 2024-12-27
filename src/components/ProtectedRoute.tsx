@@ -7,9 +7,14 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
+    let mounted = true;
+
     const checkAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!mounted) return;
+
         if (session) {
           const { data: adminUser } = await supabase
             .from("admin_users")
@@ -17,15 +22,22 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
             .eq("email", session.user.email)
             .single();
 
-          setIsAuthenticated(!!adminUser);
+          if (mounted) {
+            setIsAuthenticated(!!adminUser);
+            setLoading(false);
+          }
         } else {
-          setIsAuthenticated(false);
+          if (mounted) {
+            setIsAuthenticated(false);
+            setLoading(false);
+          }
         }
       } catch (error) {
         console.error("Auth check error:", error);
-        setIsAuthenticated(false);
-      } finally {
-        setLoading(false);
+        if (mounted) {
+          setIsAuthenticated(false);
+          setLoading(false);
+        }
       }
     };
 
@@ -33,6 +45,9 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("ProtectedRoute: Auth state changed:", { event, session });
+      
+      if (!mounted) return;
+
       if (event === 'SIGNED_OUT') {
         setIsAuthenticated(false);
         setLoading(false);
@@ -47,18 +62,27 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
             .eq("email", session.user.email)
             .single();
 
-          setIsAuthenticated(!!adminUser);
+          if (mounted) {
+            setIsAuthenticated(!!adminUser);
+            setLoading(false);
+          }
         } catch (error) {
           console.error("Error checking admin status:", error);
-          setIsAuthenticated(false);
+          if (mounted) {
+            setIsAuthenticated(false);
+            setLoading(false);
+          }
         }
       } else {
-        setIsAuthenticated(false);
+        if (mounted) {
+          setIsAuthenticated(false);
+          setLoading(false);
+        }
       }
-      setLoading(false);
     });
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
   }, []);
