@@ -46,22 +46,33 @@ const Navbar = () => {
   };
 
   useEffect(() => {
+    let mounted = true;
+
     const checkAdmin = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
+        if (!mounted) return;
+
+        if (session?.user?.email) {
           const { data: adminUser } = await supabase
             .from("admin_users")
             .select("email")
             .eq("email", session.user.email)
             .single();
-          setIsAdmin(!!adminUser);
+
+          if (mounted) {
+            setIsAdmin(!!adminUser);
+          }
         } else {
-          setIsAdmin(false);
+          if (mounted) {
+            setIsAdmin(false);
+          }
         }
       } catch (error) {
         console.error("Error checking admin status:", error);
-        setIsAdmin(false);
+        if (mounted) {
+          setIsAdmin(false);
+        }
       }
     };
 
@@ -69,30 +80,41 @@ const Navbar = () => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Navbar: Auth state changed:", { event, session });
+      
+      if (!mounted) return;
+
       if (event === 'SIGNED_OUT') {
         console.log("Navbar: User signed out, updating admin status");
         setIsAdmin(false);
         return;
       }
 
-      if (session) {
+      if (session?.user?.email) {
         try {
           const { data: adminUser } = await supabase
             .from("admin_users")
             .select("email")
             .eq("email", session.user.email)
             .single();
-          setIsAdmin(!!adminUser);
+
+          if (mounted) {
+            setIsAdmin(!!adminUser);
+          }
         } catch (error) {
           console.error("Error checking admin status:", error);
-          setIsAdmin(false);
+          if (mounted) {
+            setIsAdmin(false);
+          }
         }
       } else {
-        setIsAdmin(false);
+        if (mounted) {
+          setIsAdmin(false);
+        }
       }
     });
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
   }, []);
