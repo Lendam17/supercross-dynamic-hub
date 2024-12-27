@@ -14,11 +14,10 @@ const Tickets = () => {
       return;
     }
     
-    console.log("Tickets: Starting ticket click process");
     setIsProcessing(true);
+    console.log("Tickets: Starting ticket click process");
     
     try {
-      console.log("Tickets: Inserting click record");
       const { error } = await supabase
         .from('ticket_button_clicks')
         .insert([{ clicked_at: new Date().toISOString() }]);
@@ -29,7 +28,10 @@ const Tickets = () => {
       }
 
       console.log("Tickets: Click recorded successfully");
-      window.open('https://www.ticketmaster.fr', '_blank');
+      
+      // Ouvrir dans un nouvel onglet pour éviter les problèmes de navigation
+      const newWindow = window.open('https://www.ticketmaster.fr', '_blank');
+      if (newWindow) newWindow.focus();
       
     } catch (error) {
       console.error('Tickets: Error tracking ticket click:', error);
