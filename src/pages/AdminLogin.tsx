@@ -15,23 +15,35 @@ const AdminLogin = () => {
   useEffect(() => {
     const checkSession = async () => {
       console.log("AdminLogin: Checking session...");
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (session) {
-        console.log("AdminLogin: Session exists, checking admin status");
-        const { data: adminUser } = await supabase
-          .from("admin_users")
-          .select("email")
-          .eq("email", session.user.email)
-          .single();
-
-        if (adminUser) {
-          console.log("AdminLogin: Valid admin user, redirecting to dashboard");
-          navigate("/dashboard");
-        } else {
-          console.log("AdminLogin: Not an admin user, signing out");
-          await supabase.auth.signOut();
+      try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        console.log("AdminLogin: Session data:", session);
+        
+        if (sessionError) {
+          console.error("AdminLogin: Session error:", sessionError);
+          return;
         }
+
+        if (session) {
+          console.log("AdminLogin: Found session, user email:", session.user.email);
+          const { data: adminUser, error: adminError } = await supabase
+            .from("admin_users")
+            .select("email")
+            .eq("email", session.user.email)
+            .single();
+
+          console.log("AdminLogin: Admin check result:", { adminUser, adminError });
+
+          if (adminUser) {
+            console.log("AdminLogin: Valid admin user, redirecting");
+            navigate("/dashboard");
+          } else {
+            console.log("AdminLogin: Not an admin user, signing out");
+            await supabase.auth.signOut();
+          }
+        }
+      } catch (error) {
+        console.error("AdminLogin: Unexpected error:", error);
       }
     };
 
@@ -44,12 +56,14 @@ const AdminLogin = () => {
     setLoading(true);
 
     try {
-      // Vérifier d'abord si l'utilisateur est un admin
-      const { data: adminCheck } = await supabase
+      console.log("AdminLogin: Checking admin status for email:", email);
+      const { data: adminCheck, error: adminCheckError } = await supabase
         .from("admin_users")
         .select("email")
         .eq("email", email)
         .single();
+
+      console.log("AdminLogin: Admin check result:", { adminCheck, adminCheckError });
 
       if (!adminCheck) {
         console.log("AdminLogin: Not an admin user");
@@ -62,23 +76,30 @@ const AdminLogin = () => {
         return;
       }
 
-      // Tentative de connexion
-      const { error: signInError } = await supabase.auth.signInWithPassword({
+      console.log("AdminLogin: Starting Supabase auth...");
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
-        password
+        password,
       });
+
+      console.log("AdminLogin: Auth result:", { data, error: signInError });
 
       if (signInError) {
         throw signInError;
       }
 
-      // Si la connexion réussit, rediriger vers le dashboard
       console.log("AdminLogin: Login successful");
       toast({
         title: "Succès",
         description: "Connexion réussie",
       });
-      navigate("/dashboard");
+      
+      // Petit délai pour laisser le temps à Supabase de mettre à jour la session
+      setTimeout(() => {
+        console.log("AdminLogin: Redirecting to dashboard");
+        navigate("/dashboard");
+      }, 500);
+
     } catch (error) {
       console.error("AdminLogin: Login error:", error);
       toast({
