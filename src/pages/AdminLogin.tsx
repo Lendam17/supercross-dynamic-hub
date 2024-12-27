@@ -14,10 +14,7 @@ const AdminLogin = () => {
 
   useEffect(() => {
     const checkSession = async () => {
-      console.log("AdminLogin: Checking initial session...");
       const { data: { session } } = await supabase.auth.getSession();
-      console.log("AdminLogin: Initial session:", session);
-
       if (session) {
         const { data: adminUser } = await supabase
           .from("admin_users")
@@ -26,7 +23,6 @@ const AdminLogin = () => {
           .single();
 
         if (adminUser) {
-          console.log("AdminLogin: User already authenticated and is admin, redirecting...");
           navigate("/dashboard");
         }
       }
@@ -37,57 +33,44 @@ const AdminLogin = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("AdminLogin: Starting login process...");
     setLoading(true);
 
     try {
-      // 1. Vérifier si l'email est dans admin_users
-      console.log("AdminLogin: Checking if email is in admin_users...");
-      const { data: adminCheck, error: adminCheckError } = await supabase
-        .from("admin_users")
-        .select("email")
-        .eq("email", email)
-        .single();
-
-      if (adminCheckError || !adminCheck) {
-        console.log("AdminLogin: Email not in admin_users");
-        throw new Error("Non autorisé");
-      }
-
-      // 2. Tentative de connexion
-      console.log("AdminLogin: Attempting login with Supabase auth...");
+      // 1. Connexion directe avec Supabase
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (signInError) {
-        console.error("AdminLogin: Sign in error:", signInError);
-        throw signInError;
+      if (signInError) throw signInError;
+
+      // 2. Vérification si admin après connexion réussie
+      const { data: adminUser, error: adminError } = await supabase
+        .from("admin_users")
+        .select("email")
+        .eq("email", email)
+        .single();
+
+      if (adminError || !adminUser) {
+        // Si pas admin, déconnexion et erreur
+        await supabase.auth.signOut();
+        throw new Error("Accès non autorisé");
       }
 
-      console.log("AdminLogin: Login successful, checking final session...");
-      
-      // 3. Vérification finale de la session
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (session) {
-        console.log("AdminLogin: Session confirmed, redirecting...");
-        toast({
-          title: "Succès",
-          description: "Connexion réussie",
-        });
-        navigate("/dashboard");
-      } else {
-        throw new Error("Erreur de session");
-      }
+      // 3. Si tout est OK, redirection
+      toast({
+        title: "Succès",
+        description: "Connexion réussie",
+      });
+      navigate("/dashboard");
     } catch (error) {
-      console.error("AdminLogin: Error during login:", error);
+      console.error("Erreur de connexion:", error);
       toast({
         title: "Erreur",
-        description: error instanceof Error ? error.message : "Email ou mot de passe incorrect",
+        description: error instanceof Error ? error.message : "Erreur de connexion",
         variant: "destructive",
       });
+      await supabase.auth.signOut();
     } finally {
       setLoading(false);
     }
