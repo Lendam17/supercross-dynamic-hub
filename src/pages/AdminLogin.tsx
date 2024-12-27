@@ -12,65 +12,55 @@ const AdminLogin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Nettoyage de la session au chargement
   useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        const { data: adminUser } = await supabase
-          .from("admin_users")
-          .select("email")
-          .eq("email", session.user.email)
-          .single();
-
-        if (adminUser) {
-          navigate("/dashboard");
-        }
-      }
+    const cleanupSession = async () => {
+      await supabase.auth.signOut();
     };
-
-    checkSession();
-  }, [navigate]);
+    cleanupSession();
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      // 1. Connexion directe avec Supabase
-      const { error: signInError } = await supabase.auth.signInWithPassword({
+      // 1. D'abord, on vérifie si l'email est autorisé
+      const { data: adminUser } = await supabase
+        .from("admin_users")
+        .select("email")
+        .eq("email", email)
+        .single();
+
+      if (!adminUser) {
+        throw new Error("Accès non autorisé");
+      }
+
+      // 2. Tentative de connexion
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (signInError) throw signInError;
 
-      // 2. Vérification si admin après connexion réussie
-      const { data: adminUser, error: adminError } = await supabase
-        .from("admin_users")
-        .select("email")
-        .eq("email", email)
-        .single();
-
-      if (adminError || !adminUser) {
-        // Si pas admin, déconnexion et erreur
-        await supabase.auth.signOut();
-        throw new Error("Accès non autorisé");
+      if (data.user) {
+        toast({
+          title: "Succès",
+          description: "Connexion réussie",
+        });
+        navigate("/dashboard");
       }
-
-      // 3. Si tout est OK, redirection
-      toast({
-        title: "Succès",
-        description: "Connexion réussie",
-      });
-      navigate("/dashboard");
     } catch (error) {
       console.error("Erreur de connexion:", error);
+      // Nettoyage de la session en cas d'erreur
+      await supabase.auth.signOut();
+      
       toast({
-        title: "Erreur",
-        description: error instanceof Error ? error.message : "Erreur de connexion",
+        title: "Erreur de connexion",
+        description: error instanceof Error ? error.message : "Email ou mot de passe incorrect",
         variant: "destructive",
       });
-      await supabase.auth.signOut();
     } finally {
       setLoading(false);
     }
@@ -107,7 +97,11 @@ const AdminLogin = () => {
               required
             />
           </div>
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button 
+            type="submit" 
+            className="w-full bg-primary hover:bg-primary/90" 
+            disabled={loading}
+          >
             {loading ? "Connexion..." : "Se connecter"}
           </Button>
         </form>
