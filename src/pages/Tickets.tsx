@@ -28,12 +28,8 @@ const Tickets = () => {
         throw error;
       }
 
-      console.log("Tickets: Click recorded successfully, opening Ticketmaster");
-      // Utiliser setTimeout pour s'assurer que l'état est mis à jour avant d'ouvrir la nouvelle fenêtre
-      setTimeout(() => {
-        window.open('https://www.ticketmaster.fr', '_blank');
-        setIsProcessing(false);
-      }, 100);
+      console.log("Tickets: Click recorded successfully");
+      window.open('https://www.ticketmaster.fr', '_blank');
       
     } catch (error) {
       console.error('Tickets: Error tracking ticket click:', error);
@@ -42,6 +38,7 @@ const Tickets = () => {
         description: "Une erreur est survenue. Veuillez réessayer.",
         variant: "destructive",
       });
+    } finally {
       setIsProcessing(false);
     }
   };
