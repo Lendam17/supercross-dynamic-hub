@@ -61,33 +61,42 @@ export const useAdminAuth = () => {
     // Initial check
     checkAuth();
 
-    // Subscribe to auth changes with debounce
-    let timeoutId: NodeJS.Timeout;
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    // Subscribe to auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("useAdminAuth: Auth state changed:", event, session?.user?.email);
       
       if (!mounted) return;
 
-      // Clear any existing timeout
-      if (timeoutId) clearTimeout(timeoutId);
-
-      // Set a small timeout to prevent multiple rapid checks
-      timeoutId = setTimeout(async () => {
-        if (event === 'SIGNED_OUT') {
-          setIsAuthenticated(false);
-          setLoading(false);
-          setError(null);
-          return;
+      // Handle visibility change
+      const handleVisibilityChange = () => {
+        if (document.visibilityState === 'visible') {
+          checkAuth();
         }
+      };
 
-        await checkAuth();
-      }, 100);
+      // Add visibility change listener
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+
+      if (event === 'SIGNED_OUT') {
+        setIsAuthenticated(false);
+        setLoading(false);
+        setError(null);
+        return;
+      }
+
+      await checkAuth();
+
+      // Cleanup visibility change listener
+      return () => {
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+      };
     });
 
     return () => {
       console.log("useAdminAuth: Cleanup");
       mounted = false;
-      if (timeoutId) clearTimeout(timeoutId);
       subscription.unsubscribe();
     };
   }, []);
