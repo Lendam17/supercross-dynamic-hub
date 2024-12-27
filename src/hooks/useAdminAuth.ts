@@ -22,10 +22,10 @@ export const useAdminAuth = () => {
           .from("admin_users")
           .select("email")
           .eq("email", email)
-          .maybeSingle();
+          .single();
 
         if (error) {
-          console.error("Error checking admin status:", error);
+          console.error("useAdminAuth: Error checking admin status:", error);
           if (mounted) {
             setIsAuthenticated(false);
             setLoading(false);
@@ -38,7 +38,7 @@ export const useAdminAuth = () => {
           setLoading(false);
         }
       } catch (error) {
-        console.error("Error checking admin status:", error);
+        console.error("useAdminAuth: Error in checkAdminStatus:", error);
         if (mounted) {
           setIsAuthenticated(false);
           setLoading(false);
@@ -51,7 +51,7 @@ export const useAdminAuth = () => {
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
-          console.error("Error getting session:", error);
+          console.error("useAdminAuth: Error getting session:", error);
           if (mounted) {
             setIsAuthenticated(false);
             setLoading(false);
@@ -69,7 +69,7 @@ export const useAdminAuth = () => {
 
         await checkAdminStatus(session.user.email);
       } catch (error) {
-        console.error("Error in initializeAuth:", error);
+        console.error("useAdminAuth: Error in initializeAuth:", error);
         if (mounted) {
           setIsAuthenticated(false);
           setLoading(false);
@@ -77,10 +77,8 @@ export const useAdminAuth = () => {
       }
     };
 
-    // Run initial check
     initializeAuth();
 
-    // Subscribe to auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("useAdminAuth: Auth state changed:", { event, session });
       
@@ -92,8 +90,6 @@ export const useAdminAuth = () => {
         return;
       }
 
-      // Set loading to true when checking admin status
-      setLoading(true);
       await checkAdminStatus(session.user.email);
     });
 

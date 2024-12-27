@@ -2,11 +2,16 @@ import { Button } from "@/components/ui/button";
 import { ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 const Tickets = () => {
   const { toast } = useToast();
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const handleTicketClick = async () => {
+    if (isProcessing) return;
+    
+    setIsProcessing(true);
     try {
       const { error } = await supabase
         .from('ticket_button_clicks')
@@ -22,6 +27,8 @@ const Tickets = () => {
         description: "Une erreur est survenue. Veuillez réessayer.",
         variant: "destructive",
       });
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -38,8 +45,9 @@ const Tickets = () => {
           size="lg"
           className="animate-fade-in [animation-delay:400ms] bg-primary hover:bg-primary/90 text-white font-bold py-8 px-12 text-2xl rounded-xl transition-all duration-300 hover:scale-105"
           onClick={handleTicketClick}
+          disabled={isProcessing}
         >
-          Acheter des tickets <ExternalLink className="ml-2 h-8 w-8" />
+          {isProcessing ? "Traitement..." : "Acheter des tickets"} <ExternalLink className="ml-2 h-8 w-8" />
         </Button>
       </div>
     </div>
