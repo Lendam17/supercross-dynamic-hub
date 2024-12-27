@@ -16,22 +16,25 @@ const AdminLogin = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        console.log("AdminLogin: Checking initial auth state...");
         const { data: { session } } = await supabase.auth.getSession();
         
         if (session?.user?.email) {
+          console.log("AdminLogin: Session found, checking admin status");
           const { data: adminUser } = await supabase
             .from("admin_users")
             .select("email")
             .eq("email", session.user.email)
-            .maybeSingle();
+            .single();
 
           if (adminUser) {
-            navigate("/dashboard");
+            console.log("AdminLogin: Admin user found, redirecting to dashboard");
+            navigate("/dashboard", { replace: true });
             return;
           }
         }
       } catch (error) {
-        console.error("Auth check error:", error);
+        console.error("AdminLogin: Auth check error:", error);
       } finally {
         setInitialCheckDone(true);
       }
@@ -45,18 +48,20 @@ const AdminLogin = () => {
     
     if (loading) return;
     setLoading(true);
+    console.log("AdminLogin: Starting login process...");
 
     try {
       const { data: adminUser } = await supabase
         .from("admin_users")
         .select("email")
         .eq("email", email)
-        .maybeSingle();
+        .single();
 
       if (!adminUser) {
         throw new Error("Accès non autorisé");
       }
 
+      console.log("AdminLogin: Admin user found, attempting sign in");
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -65,14 +70,15 @@ const AdminLogin = () => {
       if (error) throw error;
 
       if (data.user) {
-        navigate("/dashboard");
+        console.log("AdminLogin: Sign in successful");
+        navigate("/dashboard", { replace: true });
         toast({
           title: "Succès",
           description: "Connexion réussie",
         });
       }
     } catch (error: any) {
-      console.error("Login error:", error);
+      console.error("AdminLogin: Login error:", error);
       toast({
         title: "Erreur de connexion",
         description: error.message || "Email ou mot de passe incorrect",

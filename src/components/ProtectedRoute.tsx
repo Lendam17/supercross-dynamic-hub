@@ -17,6 +17,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     }
   }, [error, toast]);
 
+  console.log("ProtectedRoute: Current state:", { isAuthenticated, loading, error });
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -25,10 +27,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  console.log("ProtectedRoute: Auth state", { isAuthenticated, loading, error });
-
   if (!isAuthenticated) {
-    console.log("Not authenticated, redirecting to login");
+    console.log("ProtectedRoute: Not authenticated, redirecting to login");
     return <Navigate to="/dashboard/login" replace />;
   }
 
