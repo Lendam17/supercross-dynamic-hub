@@ -27,18 +27,20 @@ const AdminLogin = () => {
         throw new Error("Accès non autorisé");
       }
 
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) throw error;
 
-      navigate("/dashboard");
-      toast({
-        title: "Succès",
-        description: "Connexion réussie",
-      });
+      if (data.user) {
+        navigate("/dashboard");
+        toast({
+          title: "Succès",
+          description: "Connexion réussie",
+        });
+      }
     } catch (error) {
       console.error("Erreur de connexion:", error);
       toast({

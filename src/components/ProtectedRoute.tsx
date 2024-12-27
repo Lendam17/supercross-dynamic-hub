@@ -30,6 +30,31 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     };
 
     checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("ProtectedRoute: Auth state changed:", { event, session });
+      if (session) {
+        try {
+          const { data: adminUser } = await supabase
+            .from("admin_users")
+            .select("email")
+            .eq("email", session.user.email)
+            .single();
+
+          setIsAuthenticated(!!adminUser);
+        } catch (error) {
+          console.error("Error checking admin status:", error);
+          setIsAuthenticated(false);
+        }
+      } else {
+        setIsAuthenticated(false);
+      }
+      setLoading(false);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   if (loading) {
