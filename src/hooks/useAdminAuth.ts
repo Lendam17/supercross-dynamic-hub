@@ -7,61 +7,47 @@ export const useAdminAuth = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const checkAdminStatus = async (email: string) => {
-      try {
-        console.log("Checking admin status for:", email);
-        const { data: adminUser, error: adminError } = await supabase
-          .from("admin_users")
-          .select("email")
-          .eq("email", email)
-          .maybeSingle();
-
-        if (adminError) {
-          console.error("Admin check error:", adminError);
-          setIsAuthenticated(false);
-          setError("Erreur lors de la vérification des droits administrateur");
-          return;
-        }
-
-        const isAdmin = !!adminUser;
-        console.log("Is admin?", isAdmin);
-        setIsAuthenticated(isAdmin);
-        setError(null);
-      } catch (error) {
-        console.error("Unexpected error:", error);
-        setIsAuthenticated(false);
-        setError("Une erreur inattendue s'est produite");
-      }
-    };
-
-    const initAuth = async () => {
+    const checkAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
-        console.log("Current session:", session);
         
         if (!session?.user?.email) {
-          console.log("No session or email");
+          console.log("No active session found");
           setIsAuthenticated(false);
           setLoading(false);
           return;
         }
 
-        await checkAdminStatus(session.user.email);
-      } catch (error) {
-        console.error("Session check error:", error);
-        setError("Erreur lors de la vérification de la session");
+        console.log("Checking admin status for:", session.user.email);
+        const { data: adminUser, error: adminError } = await supabase
+          .from("admin_users")
+          .select("email")
+          .eq("email", session.user.email)
+          .maybeSingle();
+
+        if (adminError) {
+          console.error("Error checking admin status:", adminError);
+          setError("Erreur lors de la vérification des droits administrateur");
+          setIsAuthenticated(false);
+        } else {
+          setIsAuthenticated(!!adminUser);
+          setError(null);
+        }
+      } catch (err) {
+        console.error("Unexpected error:", err);
+        setError("Une erreur inattendue s'est produite");
+        setIsAuthenticated(false);
       } finally {
         setLoading(false);
       }
     };
 
-    initAuth();
+    checkAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state changed:", event, session?.user?.email);
       
       if (event === 'SIGNED_OUT') {
-        console.log("User signed out");
         setIsAuthenticated(false);
         setLoading(false);
         setError(null);
@@ -69,12 +55,11 @@ export const useAdminAuth = () => {
       }
 
       if (session?.user?.email) {
-        await checkAdminStatus(session.user.email);
+        await checkAuth();
       } else {
         setIsAuthenticated(false);
+        setLoading(false);
       }
-      
-      setLoading(false);
     });
 
     return () => {
