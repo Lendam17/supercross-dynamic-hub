@@ -1,7 +1,30 @@
 import { Button } from "@/components/ui/button";
 import { ExternalLink } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const Tickets = () => {
+  const { toast } = useToast();
+
+  const handleTicketClick = async () => {
+    try {
+      const { error } = await supabase
+        .from('ticket_button_clicks')
+        .insert([{ clicked_at: new Date().toISOString() }]);
+
+      if (error) throw error;
+
+      window.open('https://www.ticketmaster.fr', '_blank');
+    } catch (error) {
+      console.error('Error tracking ticket click:', error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue. Veuillez réessayer.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-soft-blue via-white to-soft-purple flex items-center justify-center p-4">
       <div className="text-center max-w-2xl mx-auto">
@@ -14,7 +37,7 @@ const Tickets = () => {
         <Button
           size="lg"
           className="animate-fade-in [animation-delay:400ms] bg-primary hover:bg-primary/90 text-white font-bold py-8 px-12 text-2xl rounded-xl transition-all duration-300 hover:scale-105"
-          onClick={() => window.open('https://www.ticketmaster.fr', '_blank')}
+          onClick={handleTicketClick}
         >
           Acheter des tickets <ExternalLink className="ml-2 h-8 w-8" />
         </Button>

@@ -10,15 +10,22 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const isActive = (path: string) => {
     return location.pathname === path;
   };
 
   const handleLogout = async () => {
+    if (isLoggingOut) return;
+    
+    setIsLoggingOut(true);
     console.log("Navbar: Starting logout process...");
+    
     try {
-      await supabase.auth.signOut();
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
       console.log("Navbar: Signed out successfully");
       setIsAdmin(false);
       navigate("/dashboard/login", { replace: true });
@@ -33,6 +40,8 @@ const Navbar = () => {
         description: "Une erreur est survenue lors de la déconnexion.",
         variant: "destructive",
       });
+    } finally {
+      setIsLoggingOut(false);
     }
   };
 
@@ -103,9 +112,10 @@ const Navbar = () => {
               <Button
                 variant="default"
                 onClick={handleLogout}
+                disabled={isLoggingOut}
                 className="hidden md:inline-flex ml-8 bg-primary hover:bg-primary/90 text-white font-['Oswald'] tracking-wide"
               >
-                Déconnexion
+                {isLoggingOut ? "Déconnexion..." : "Déconnexion"}
               </Button>
             )}
           </div>
