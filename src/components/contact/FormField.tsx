@@ -16,7 +16,7 @@ const FormField = ({ label, error, isTextarea = false, ...props }: FormFieldProp
       </label>
       <Component
         {...props}
-        className="w-full p-3 rounded-lg bg-white/50 border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-colors"
+        className={`w-full p-3 rounded-lg bg-white border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-colors ${isTextarea ? 'min-h-[120px] resize-none' : ''}`}
       />
       {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
     </div>

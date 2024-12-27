@@ -5,7 +5,6 @@ import { z } from "zod";
 import FormField from "./contact/FormField";
 import SubmitButton from "./contact/SubmitButton";
 
-// Schema de validation pour le formulaire de contact
 const contactSchema = z.object({
   name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
   email: z.string().email("Veuillez entrer une adresse email valide"),
