@@ -61,6 +61,16 @@ export const useAdminAuth = () => {
     // Initial check
     checkAuth();
 
+    // Handle visibility change
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        checkAuth();
+      }
+    };
+
+    // Add visibility change listener
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     // Subscribe to auth changes
     const {
       data: { subscription },
@@ -68,16 +78,6 @@ export const useAdminAuth = () => {
       console.log("useAdminAuth: Auth state changed:", event, session?.user?.email);
       
       if (!mounted) return;
-
-      // Handle visibility change
-      const handleVisibilityChange = () => {
-        if (document.visibilityState === 'visible') {
-          checkAuth();
-        }
-      };
-
-      // Add visibility change listener
-      document.addEventListener('visibilitychange', handleVisibilityChange);
 
       if (event === 'SIGNED_OUT') {
         setIsAuthenticated(false);
@@ -87,16 +87,13 @@ export const useAdminAuth = () => {
       }
 
       await checkAuth();
-
-      // Cleanup visibility change listener
-      return () => {
-        document.removeEventListener('visibilitychange', handleVisibilityChange);
-      };
     });
 
+    // Cleanup function
     return () => {
       console.log("useAdminAuth: Cleanup");
       mounted = false;
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       subscription.unsubscribe();
     };
   }, []);
