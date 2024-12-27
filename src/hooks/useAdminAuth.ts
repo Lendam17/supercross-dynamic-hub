@@ -9,11 +9,12 @@ export const useAdminAuth = () => {
   useEffect(() => {
     const checkAdminStatus = async (email: string) => {
       try {
+        console.log("Checking admin status for:", email);
         const { data: adminUser, error: adminError } = await supabase
           .from("admin_users")
           .select("email")
           .eq("email", email)
-          .single();
+          .maybeSingle();
 
         if (adminError) {
           console.error("Admin check error:", adminError);
@@ -22,7 +23,9 @@ export const useAdminAuth = () => {
           return;
         }
 
-        setIsAuthenticated(!!adminUser);
+        const isAdmin = !!adminUser;
+        console.log("Is admin?", isAdmin);
+        setIsAuthenticated(isAdmin);
         setError(null);
       } catch (error) {
         console.error("Unexpected error:", error);
@@ -31,10 +34,34 @@ export const useAdminAuth = () => {
       }
     };
 
+    const initAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        console.log("Current session:", session);
+        
+        if (!session?.user?.email) {
+          console.log("No session or email");
+          setIsAuthenticated(false);
+          setLoading(false);
+          return;
+        }
+
+        await checkAdminStatus(session.user.email);
+      } catch (error) {
+        console.error("Session check error:", error);
+        setError("Erreur lors de la vérification de la session");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initAuth();
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state changed:", event, session?.user?.email);
       
       if (event === 'SIGNED_OUT') {
+        console.log("User signed out");
         setIsAuthenticated(false);
         setLoading(false);
         setError(null);
@@ -49,17 +76,6 @@ export const useAdminAuth = () => {
       
       setLoading(false);
     });
-
-    // Initial check
-    const initAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user?.email) {
-        await checkAdminStatus(session.user.email);
-      }
-      setLoading(false);
-    };
-
-    initAuth();
 
     return () => {
       subscription.unsubscribe();

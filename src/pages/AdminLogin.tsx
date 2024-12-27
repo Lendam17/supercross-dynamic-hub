@@ -9,23 +9,31 @@ const AdminLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [initialCheckDone, setInitialCheckDone] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (session?.user?.email) {
-        const { data: adminUser } = await supabase
-          .from("admin_users")
-          .select("email")
-          .eq("email", session.user.email)
-          .single();
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session?.user?.email) {
+          const { data: adminUser } = await supabase
+            .from("admin_users")
+            .select("email")
+            .eq("email", session.user.email)
+            .maybeSingle();
 
-        if (adminUser) {
-          navigate("/dashboard");
+          if (adminUser) {
+            navigate("/dashboard");
+            return;
+          }
         }
+      } catch (error) {
+        console.error("Auth check error:", error);
+      } finally {
+        setInitialCheckDone(true);
       }
     };
 
@@ -34,16 +42,18 @@ const AdminLogin = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (loading) return;
     setLoading(true);
 
     try {
-      const { data: adminUser, error: adminError } = await supabase
+      const { data: adminUser } = await supabase
         .from("admin_users")
         .select("email")
         .eq("email", email)
-        .single();
+        .maybeSingle();
 
-      if (adminError || !adminUser) {
+      if (!adminUser) {
         throw new Error("Accès non autorisé");
       }
 
@@ -72,6 +82,14 @@ const AdminLogin = () => {
       setLoading(false);
     }
   };
+
+  if (!initialCheckDone) {
+    return (
+      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4">
