@@ -9,7 +9,6 @@ const AdminLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [checkingAuth, setCheckingAuth] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -23,18 +22,15 @@ const AdminLogin = () => {
             .from("admin_users")
             .select("email")
             .eq("email", session.user.email)
-            .maybeSingle();
+            .single();
 
           if (adminUser) {
             console.log("User already authenticated and is admin, redirecting to dashboard");
             navigate("/dashboard", { replace: true });
-            return;
           }
         }
       } catch (error) {
         console.error("Error checking session:", error);
-      } finally {
-        setCheckingAuth(false);
       }
     };
 
@@ -50,7 +46,7 @@ const AdminLogin = () => {
         .from("admin_users")
         .select("email")
         .eq("email", email)
-        .maybeSingle();
+        .single();
 
       if (!adminUser) {
         throw new Error("Accès non autorisé");
@@ -81,14 +77,6 @@ const AdminLogin = () => {
       setLoading(false);
     }
   };
-
-  if (checkingAuth) {
-    return (
-      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4">
@@ -132,6 +120,6 @@ const AdminLogin = () => {
       </div>
     </div>
   );
-}
+};
 
 export default AdminLogin;
