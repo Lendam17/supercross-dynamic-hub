@@ -25,7 +25,10 @@ const Tickets = () => {
       if (error) throw error;
 
       console.log("Tickets: Click recorded successfully");
-      window.open('https://www.ticketmaster.fr', '_blank');
+      
+      // Ouvrir dans un nouvel onglet pour éviter les problèmes de navigation
+      const newWindow = window.open('https://www.ticketmaster.fr', '_blank');
+      if (newWindow) newWindow.focus();
       
     } catch (error) {
       console.error('Tickets: Error tracking ticket click:', error);
