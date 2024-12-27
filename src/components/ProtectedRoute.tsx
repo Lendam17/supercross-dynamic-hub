@@ -16,31 +16,28 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
         if (!mounted) return;
 
-        if (session) {
-          const { data: adminUser, error } = await supabase
-            .from("admin_users")
-            .select("email")
-            .eq("email", session.user.email)
-            .maybeSingle();
+        if (!session) {
+          setIsAuthenticated(false);
+          setLoading(false);
+          return;
+        }
 
-          if (error) {
-            console.error("Error checking admin status:", error);
-            if (mounted) {
-              setIsAuthenticated(false);
-              setLoading(false);
-            }
-            return;
-          }
+        const { data: adminUser, error } = await supabase
+          .from("admin_users")
+          .select("email")
+          .eq("email", session.user.email)
+          .maybeSingle();
 
-          if (mounted) {
-            setIsAuthenticated(!!adminUser);
-            setLoading(false);
-          }
-        } else {
-          if (mounted) {
-            setIsAuthenticated(false);
-            setLoading(false);
-          }
+        if (error) {
+          console.error("Error checking admin status:", error);
+          setIsAuthenticated(false);
+          setLoading(false);
+          return;
+        }
+
+        if (mounted) {
+          setIsAuthenticated(!!adminUser);
+          setLoading(false);
         }
       } catch (error) {
         console.error("Auth check error:", error);
@@ -51,50 +48,47 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
       }
     };
 
+    // Initial check
     checkAuth();
 
+    // Subscribe to auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("ProtectedRoute: Auth state changed:", { event, session });
       
       if (!mounted) return;
 
       if (event === 'SIGNED_OUT') {
-        if (mounted) {
-          setIsAuthenticated(false);
-          setLoading(false);
-        }
+        setIsAuthenticated(false);
+        setLoading(false);
         return;
       }
 
-      if (session) {
-        try {
-          const { data: adminUser, error } = await supabase
-            .from("admin_users")
-            .select("email")
-            .eq("email", session.user.email)
-            .maybeSingle();
+      if (!session) {
+        setIsAuthenticated(false);
+        setLoading(false);
+        return;
+      }
 
-          if (error) {
-            console.error("Error checking admin status:", error);
-            if (mounted) {
-              setIsAuthenticated(false);
-              setLoading(false);
-            }
-            return;
-          }
+      try {
+        const { data: adminUser, error } = await supabase
+          .from("admin_users")
+          .select("email")
+          .eq("email", session.user.email)
+          .maybeSingle();
 
-          if (mounted) {
-            setIsAuthenticated(!!adminUser);
-            setLoading(false);
-          }
-        } catch (error) {
+        if (error) {
           console.error("Error checking admin status:", error);
-          if (mounted) {
-            setIsAuthenticated(false);
-            setLoading(false);
-          }
+          setIsAuthenticated(false);
+          setLoading(false);
+          return;
         }
-      } else {
+
+        if (mounted) {
+          setIsAuthenticated(!!adminUser);
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error("Error checking admin status:", error);
         if (mounted) {
           setIsAuthenticated(false);
           setLoading(false);
