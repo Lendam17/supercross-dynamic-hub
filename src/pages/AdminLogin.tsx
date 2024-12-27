@@ -13,33 +13,23 @@ const AdminLogin = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        if (session?.user?.email) {
-          const { data: adminUser, error: adminError } = await supabase
-            .from("admin_users")
-            .select("email")
-            .eq("email", session.user.email)
-            .single();
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session?.user?.email) {
+        const { data: adminUser } = await supabase
+          .from("admin_users")
+          .select("email")
+          .eq("email", session.user.email)
+          .single();
 
-          if (adminError) {
-            console.error("AdminLogin: Admin check error:", adminError);
-            return;
-          }
-
-          if (adminUser) {
-            console.log("AdminLogin: User already authenticated and is admin");
-            navigate("/dashboard", { replace: true });
-          }
+        if (adminUser) {
+          navigate("/dashboard");
         }
-      } catch (error) {
-        console.error("AdminLogin: Session check error:", error);
       }
     };
 
-    checkSession();
+    checkAuth();
   }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -47,7 +37,6 @@ const AdminLogin = () => {
     setLoading(true);
 
     try {
-      // Vérifier si l'utilisateur est un admin avant la connexion
       const { data: adminUser, error: adminError } = await supabase
         .from("admin_users")
         .select("email")
@@ -66,14 +55,14 @@ const AdminLogin = () => {
       if (error) throw error;
 
       if (data.user) {
-        navigate("/dashboard", { replace: true });
+        navigate("/dashboard");
         toast({
           title: "Succès",
           description: "Connexion réussie",
         });
       }
     } catch (error: any) {
-      console.error("AdminLogin: Login error:", error);
+      console.error("Login error:", error);
       toast({
         title: "Erreur de connexion",
         description: error.message || "Email ou mot de passe incorrect",
