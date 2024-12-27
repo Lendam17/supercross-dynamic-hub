@@ -21,15 +21,26 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT') {
-        window.location.href = '/admin/login';
+    // Handle auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("Auth state changed:", event);
+      if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
+        // Only redirect to login if actually signed out
+        if (event === 'SIGNED_OUT') {
+          window.location.href = '/admin/login';
+        }
       }
     });
 
+    // Initialize auth state
     const initializeAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error("Error getting session:", error);
+          // Clear any invalid session data
+          await supabase.auth.signOut();
+        }
         setIsLoading(false);
       } catch (error) {
         console.error("Error checking auth status:", error);
@@ -38,6 +49,11 @@ const App = () => {
     };
 
     initializeAuth();
+
+    // Cleanup subscription on unmount
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   if (isLoading) {
